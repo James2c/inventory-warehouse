@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product
+from .models import Product, Warehouse
 
 
 class ProductForm(forms.ModelForm):
@@ -63,6 +63,37 @@ class ProductForm(forms.ModelForm):
                 }
             ),
 
+            "active": forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input",
+                }
+            ),
+        }
+
+
+class WarehouseForm(forms.ModelForm):
+
+    class Meta:
+        model = Warehouse
+        fields = [
+            "name",
+            "location",
+            "active",
+        ]
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Warehouse name",
+                }
+            ),
+            "location": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "City, Province",
+                }
+            ),
             "active": forms.CheckboxInput(
                 attrs={
                     "class": "form-check-input",

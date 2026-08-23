@@ -34,4 +34,34 @@ urlpatterns = [
         views.product_delete,
         name="product_delete",
     ),
+
+    path(
+        "warehouses/",
+        views.warehouse_list,
+        name="warehouse_list",
+    ),
+
+    path(
+        "warehouses/add/",
+        views.warehouse_create,
+        name="warehouse_create",
+    ),
+
+    path(
+        "warehouses/<int:warehouse_id>/edit/",
+        views.warehouse_edit,
+        name="warehouse_edit",
+    ),
+
+    path(
+        "warehouses/<int:warehouse_id>/delete/",
+        views.warehouse_delete,
+        name="warehouse_delete",
+    ),
+
+    path(
+        "warehouses/<int:warehouse_id>/",
+        views.warehouse_detail,
+        name="warehouse_detail",
+    ),
 ]

@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.deletion import ProtectedError
 
 from django.shortcuts import (
@@ -8,8 +8,8 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm
-from .models import Category, Inventory, Product, Supplier
+from .forms import ProductForm, WarehouseForm
+from .models import Category, Inventory, Product, Supplier, Warehouse
 
 
 
@@ -192,5 +192,154 @@ def product_delete(request, product_id):
         "inventory/product_confirm_delete.html",
         {
             "product": product,
+        },
+    )
+
+
+def warehouse_list(request):
+    warehouses = Warehouse.objects.all()
+
+    return render(
+        request,
+        "inventory/warehouse_list.html",
+        {
+            "warehouses": warehouses,
+        },
+    )
+
+
+def warehouse_detail(request, warehouse_id):
+    warehouse = get_object_or_404(
+        Warehouse,
+        id=warehouse_id,
+    )
+
+    inventory = warehouse.inventory.select_related(
+        "product",
+    ).order_by(
+        "product__name"
+    )
+
+    total_units = inventory.aggregate(
+        total=Sum("quantity")
+    )["total"] or 0
+
+    low_stock_count = sum(
+        1
+        for item in inventory
+        if item.quantity <= item.product.reorder_level
+    )
+
+    return render(
+        request,
+        "inventory/warehouse_detail.html",
+        {
+            "warehouse": warehouse,
+            "inventory": inventory,
+            "product_count": inventory.count(),
+            "total_units": total_units,
+            "low_stock_count": low_stock_count,
+        },
+    )
+
+
+def warehouse_create(request):
+
+    if request.method == "POST":
+
+        form = WarehouseForm(request.POST)
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect("warehouse_list")
+
+    else:
+
+        form = WarehouseForm()
+
+    return render(
+        request,
+        "inventory/warehouse_form.html",
+        {
+            "form": form,
+            "title": "Add Warehouse",
+        },
+    )
+
+
+def warehouse_edit(request, warehouse_id):
+
+    warehouse = get_object_or_404(
+        Warehouse,
+        id=warehouse_id,
+    )
+
+    if request.method == "POST":
+
+        form = WarehouseForm(
+            request.POST,
+            instance=warehouse,
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "warehouse_detail",
+                warehouse_id=warehouse.id,
+            )
+
+    else:
+
+        form = WarehouseForm(
+            instance=warehouse,
+        )
+
+    return render(
+        request,
+        "inventory/warehouse_form.html",
+        {
+            "form": form,
+            "title": "Edit Warehouse",
+            "warehouse": warehouse,
+        },
+    )
+
+
+def warehouse_delete(request, warehouse_id):
+
+    warehouse = get_object_or_404(
+        Warehouse,
+        id=warehouse_id,
+    )
+
+    if request.method == "POST":
+
+        try:
+
+            warehouse.delete()
+
+        except ProtectedError:
+
+            return render(
+                request,
+                "inventory/warehouse_confirm_delete.html",
+                {
+                    "warehouse": warehouse,
+                    "protected": True,
+                },
+            )
+
+        return redirect("warehouse_list")
+
+    return render(
+        request,
+        "inventory/warehouse_confirm_delete.html",
+        {
+            "warehouse": warehouse,
+            "protected": False,
         },
     )
