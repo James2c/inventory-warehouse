@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum
 from django.db.models.deletion import ProtectedError
+from django.db import transaction, models
 
 from django.shortcuts import (
     get_object_or_404,
@@ -8,7 +9,7 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm, InventoryForm
+from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm
 from .models import Category, Inventory, Product, Supplier, Warehouse
 
 
@@ -442,6 +443,103 @@ def inventory_delete(request, inventory_id):
     return render(
         request,
         "inventory/inventory_confirm_delete.html",
+        {
+            "inventory": inventory,
+        },
+    )
+
+
+def stock_adjustment_create(request, inventory_id):
+
+    inventory = get_object_or_404(
+        Inventory,
+        id=inventory_id,
+    )
+
+    if request.method == "POST":
+
+        form = StockAdjustmentForm(request.POST)
+
+        if form.is_valid():
+
+            adjustment = form.save(commit=False)
+
+            adjustment.inventory = inventory
+
+            if (
+                adjustment.adjustment_type == "OUT"
+                and adjustment.quantity > inventory.quantity
+            ):
+                form.add_error(
+                    "quantity",
+                    "Stock out quantity cannot exceed current inventory.",
+                )
+
+            else:
+
+                with transaction.atomic():
+
+                    adjustment.save()
+
+                    if adjustment.adjustment_type == "IN":
+                        inventory.quantity += adjustment.quantity
+
+                    else:
+                        inventory.quantity -= adjustment.quantity
+
+                    inventory.save()
+
+                return redirect("inventory_list")
+
+    else:
+
+        form = StockAdjustmentForm()
+
+    return render(
+        request,
+        "inventory/stock_adjustment_form.html",
+        {
+            "form": form,
+            "inventory": inventory,
+        },
+    )
+
+
+def inventory_history(request, inventory_id):
+
+    inventory = get_object_or_404(
+        Inventory,
+        id=inventory_id,
+    )
+
+    adjustments = inventory.adjustments.order_by(
+        "-created_at"
+    )
+
+    return render(
+        request,
+        "inventory/inventory_history.html",
+        {
+            "inventory": inventory,
+            "adjustments": adjustments,
+        },
+    )
+
+
+def low_stock(request):
+
+    inventory = Inventory.objects.select_related(
+        "product",
+        "warehouse",
+    ).filter(
+        quantity__lte=models.F("product__reorder_level")
+    ).order_by(
+        "quantity",
+    )
+
+    return render(
+        request,
+        "inventory/low_stock.html",
         {
             "inventory": inventory,
         },

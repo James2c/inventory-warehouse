@@ -1,7 +1,7 @@
 {% extends "inventory/base.html" %}
 
 {% block title %}
-    Inventory
+    Low Stock
 {% endblock %}
 
 {% block content %}
@@ -11,17 +11,20 @@
     <div>
 
         <h1 class="mb-1">
-            Inventory
+            Low Stock
         </h1>
 
         <p class="text-muted mb-0">
-            View inventory across all warehouses.
+            Inventory requiring replenishment.
         </p>
 
     </div>
 
-    <a href="{% url 'inventory_create' %}" class="btn btn-primary">
-        Add Inventory
+    <a
+        href="{% url 'inventory_list' %}"
+        class="btn btn-outline-secondary"
+    >
+        Back to Inventory
     </a>
 
 </div>
@@ -32,7 +35,7 @@
     <div class="card-header">
 
         <h5 class="mb-0">
-            Inventory
+            Low Stock Items
         </h5>
 
     </div>
@@ -60,8 +63,6 @@
 
                         <th>Status</th>
 
-                        <th>Actions</th>
-
                     </tr>
 
                 </thead>
@@ -74,14 +75,7 @@
                         <tr>
 
                             <td>
-
-                                <a
-                                    href="{% url 'product_detail' item.product.id %}"
-                                    class="text-decoration-none"
-                                >
-                                    {{ item.product.sku }}
-                                </a>
-
+                                {{ item.product.sku }}
                             </td>
 
 
@@ -109,7 +103,7 @@
                             </td>
 
 
-                            <td>
+                            <td class="fw-semibold">
                                 {{ item.quantity }}
                             </td>
 
@@ -121,51 +115,9 @@
 
                             <td>
 
-                                {% if item.quantity <= item.product.reorder_level %}
-
-                                    <span class="badge bg-danger">
-                                        Low Stock
-                                    </span>
-
-                                {% else %}
-
-                                    <span class="badge bg-success">
-                                        OK
-                                    </span>
-
-                                {% endif %}
-
-                            </td>
-
-                            <td>
-
-                                <a
-                                    href="{% url 'stock_adjustment_create' item.id %}"
-                                    class="btn btn-sm btn-outline-success"
-                                >
-                                    Adjust
-                                </a>
-
-                                <a
-                                    href="{% url 'inventory_history' item.id %}"
-                                    class="btn btn-sm btn-outline-secondary"
-                                >
-                                    History
-                                </a>
-
-                                <a
-                                    href="{% url 'inventory_edit' item.id %}"
-                                    class="btn btn-sm btn-outline-primary"
-                                >
-                                    Edit
-                                </a>
-
-                                <a
-                                    href="{% url 'inventory_delete' item.id %}"
-                                    class="btn btn-sm btn-outline-danger"
-                                >
-                                    Delete
-                                </a>
+                                <span class="badge bg-danger">
+                                    Low Stock
+                                </span>
 
                             </td>
 
@@ -176,10 +128,17 @@
                         <tr>
 
                             <td
-                                colspan="7"
+                                colspan="6"
                                 class="text-center py-4"
                             >
-                                No inventory records found.
+                                <div class="text-success fw-semibold">
+                                    All inventory levels are healthy.
+                                </div>
+
+                                <div class="text-muted small mt-1">
+                                    No products currently require replenishment.
+                                </div>
+
                             </td>
 
                         </tr>

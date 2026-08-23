@@ -7,6 +7,7 @@ from .models import (
     Warehouse,
     Inventory,
     InventoryTransaction,
+    StockAdjustment,
 )
 
 
@@ -118,3 +119,27 @@ class InventoryTransactionAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = ("created_at",)
+
+
+@admin.register(StockAdjustment)
+class StockAdjustmentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "inventory",
+        "adjustment_type",
+        "quantity",
+        "reason",
+        "created_at",
+    )
+
+    list_filter = (
+        "adjustment_type",
+        "created_at",
+    )
+
+    search_fields = (
+        "inventory__product__name",
+        "inventory__product__sku",
+        "inventory__warehouse__name",
+        "reason",
+    )

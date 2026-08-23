@@ -102,6 +102,43 @@ class Inventory(models.Model):
         return f"{self.product} - {self.warehouse}"
 
 
+class StockAdjustment(models.Model):
+
+    ADJUSTMENT_TYPES = [
+        ("IN", "Stock In"),
+        ("OUT", "Stock Out"),
+    ]
+
+    inventory = models.ForeignKey(
+        Inventory,
+        on_delete=models.CASCADE,
+        related_name="adjustments",
+    )
+
+    adjustment_type = models.CharField(
+        max_length=3,
+        choices=ADJUSTMENT_TYPES,
+    )
+
+    quantity = models.PositiveIntegerField()
+
+    reason = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return (
+            f"{self.inventory.product.name} - "
+            f"{self.get_adjustment_type_display()} - "
+            f"{self.quantity}"
+        )
+
+
 class InventoryTransaction(models.Model):
 
     TRANSACTION_TYPES = [

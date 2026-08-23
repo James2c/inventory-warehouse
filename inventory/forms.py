@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product, Warehouse, Inventory
+from .models import Product, Warehouse, Inventory, StockAdjustment
 
 
 class ProductForm(forms.ModelForm):
@@ -128,6 +128,37 @@ class InventoryForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "min": 0,
+                }
+            ),
+        }
+
+
+class StockAdjustmentForm(forms.ModelForm):
+
+    class Meta:
+        model = StockAdjustment
+        fields = [
+            "adjustment_type",
+            "quantity",
+            "reason",
+        ]
+
+        widgets = {
+            "adjustment_type": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+            "quantity": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": 1,
+                }
+            ),
+            "reason": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Reason for adjustment",
                 }
             ),
         }

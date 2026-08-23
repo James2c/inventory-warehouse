@@ -1,0 +1,216 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}
+    Inventory History
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h1 class="mb-1">
+            Inventory History
+        </h1>
+
+        <p class="text-muted mb-0">
+            {{ inventory.product.name }}
+            —
+            {{ inventory.warehouse.name }}
+        </p>
+
+    </div>
+
+    <a
+        href="{% url 'inventory_list' %}"
+        class="btn btn-outline-secondary"
+    >
+        Back to Inventory
+    </a>
+
+</div>
+
+
+<div class="row mb-4">
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Product
+                </small>
+
+                <h5 class="mb-0">
+                    {{ inventory.product.name }}
+                </h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Warehouse
+                </small>
+
+                <h5 class="mb-0">
+                    {{ inventory.warehouse.name }}
+                </h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <small class="text-muted">
+                    Current Stock
+                </small>
+
+                <h5 class="mb-0">
+                    {{ inventory.quantity }}
+                </h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+
+        <h5 class="mb-0">
+            Adjustment History
+        </h5>
+
+    </div>
+
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>Date</th>
+
+                        <th>Type</th>
+
+                        <th>Quantity</th>
+
+                        <th>Reason</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for adjustment in adjustments %}
+
+                        <tr>
+
+                            <td>
+                                {{ adjustment.created_at|date:"M d, Y H:i" }}
+                            </td>
+
+
+                            <td>
+
+                                {% if adjustment.adjustment_type == "IN" %}
+
+                                    <span class="badge bg-success">
+                                        Stock In
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-danger">
+                                        Stock Out
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if adjustment.adjustment_type == "IN" %}
+
+                                    <span class="text-success fw-semibold">
+                                        +{{ adjustment.quantity }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="text-danger fw-semibold">
+                                        -{{ adjustment.quantity }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+                                {{ adjustment.reason|default:"—" }}
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="text-center py-4"
+                            >
+                                No stock adjustments have been recorded.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

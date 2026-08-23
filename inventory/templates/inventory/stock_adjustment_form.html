@@ -1,0 +1,190 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}
+    Stock Adjustment
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7">
+
+        <div class="mb-4">
+
+            <h1 class="mb-1">
+                Stock Adjustment
+            </h1>
+
+            <p class="text-muted mb-0">
+                Adjust inventory quantity for
+                <strong>{{ inventory.product.name }}</strong>.
+            </p>
+
+        </div>
+
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted">
+                            Product
+                        </small>
+
+                        <div class="fw-semibold">
+                            {{ inventory.product.name }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted">
+                            Warehouse
+                        </small>
+
+                        <div class="fw-semibold">
+                            {{ inventory.warehouse.name }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <small class="text-muted">
+                            Current Stock
+                        </small>
+
+                        <div class="fw-semibold">
+                            {{ inventory.quantity }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.adjustment_type.id_for_label }}"
+                            class="form-label"
+                        >
+                            Adjustment Type
+                        </label>
+
+                        {{ form.adjustment_type }}
+
+                        {% for error in form.adjustment_type.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.quantity.id_for_label }}"
+                            class="form-label"
+                        >
+                            Quantity
+                        </label>
+
+                        {{ form.quantity }}
+
+                        {% for error in form.quantity.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="{{ form.reason.id_for_label }}"
+                            class="form-label"
+                        >
+                            Reason
+                        </label>
+
+                        {{ form.reason }}
+
+                        {% for error in form.reason.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Apply Adjustment
+                        </button>
+
+                        <a
+                            href="{% url 'inventory_list' %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

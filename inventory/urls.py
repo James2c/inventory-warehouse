@@ -48,6 +48,12 @@ urlpatterns = [
     ),
 
     path(
+        "inventory/low-stock/",
+        views.low_stock,
+        name="low_stock",
+    ),
+
+    path(
         "inventory/add/",
         views.inventory_create,
         name="inventory_create",
@@ -69,6 +75,18 @@ urlpatterns = [
         "inventory/<int:inventory_id>/delete/",
         views.inventory_delete,
         name="inventory_delete",
+    ),
+
+    path(
+        "inventory/<int:inventory_id>/adjust/",
+        views.stock_adjustment_create,
+        name="stock_adjustment_create",
+    ),
+
+    path(
+        "inventory/<int:inventory_id>/history/",
+        views.inventory_history,
+        name="inventory_history",
     ),
 
     path(
