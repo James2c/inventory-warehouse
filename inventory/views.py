@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.db.models.deletion import ProtectedError
 from django.db import transaction, models
 
@@ -15,7 +15,69 @@ from .models import Category, Inventory, Product, Supplier, Warehouse, StockAdju
 
 
 def dashboard(request):
-    return render(request, "inventory/dashboard.html")
+
+    total_products = Product.objects.count()
+
+    total_units = (
+        Inventory.objects.aggregate(
+            total=Sum("quantity")
+        )["total"]
+        or 0
+    )
+
+    total_warehouses = Warehouse.objects.count()
+
+    low_stock_count = Inventory.objects.filter(
+        quantity__lte=models.F("product__reorder_level")
+    ).count()
+
+    low_stock_items = (
+        Inventory.objects
+        .select_related(
+            "product",
+            "warehouse",
+        )
+        .filter(
+            quantity__lte=models.F("product__reorder_level")
+        )
+        .order_by(
+            "quantity",
+        )[:5]
+    )
+
+    warehouse_inventory = (
+        Warehouse.objects
+        .annotate(
+            product_count=Count("inventory__product", distinct=True),
+            total_units=Sum("inventory__quantity"),
+        )
+        .order_by("name")
+    )
+
+    recent_activity = (
+        StockAdjustment.objects
+        .select_related(
+            "inventory__product",
+            "inventory__warehouse",
+        )
+        .order_by(
+            "-created_at",
+        )[:10]
+    )
+
+    return render(
+        request,
+        "inventory/dashboard.html",
+        {
+            "total_products": total_products,
+            "total_units": total_units,
+            "total_warehouses": total_warehouses,
+            "low_stock_count": low_stock_count,
+            "warehouse_inventory": warehouse_inventory,
+            "low_stock_items": low_stock_items,
+            "recent_activity": recent_activity,
+        },
+    )
 
 
 def product_list(request):
