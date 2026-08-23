@@ -1,0 +1,71 @@
+from django import forms
+
+from .models import Product
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = [
+            "sku",
+            "name",
+            "description",
+            "category",
+            "supplier",
+            "unit_price",
+            "reorder_level",
+            "active",
+        ]
+
+        widgets = {
+            "sku": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                }
+            ),
+
+            "category": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
+            "supplier": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
+            "unit_price": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "step": "0.01",
+                }
+            ),
+
+            "reorder_level": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": "0",
+                }
+            ),
+
+            "active": forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input",
+                }
+            ),
+        }
