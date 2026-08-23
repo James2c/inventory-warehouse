@@ -20,9 +20,23 @@
 
     </div>
 
-    <a href="{% url 'inventory_create' %}" class="btn btn-primary">
-        Add Inventory
-    </a>
+    <div class="d-flex gap-2">
+
+        <a
+            href="{% url 'stock_transfer' %}"
+            class="btn btn-outline-primary"
+        >
+            Transfer Stock
+        </a>
+
+        <a
+            href="{% url 'inventory_create' %}"
+            class="btn btn-primary"
+        >
+            Add Inventory
+        </a>
+
+    </div>
 
 </div>
 

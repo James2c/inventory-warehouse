@@ -1,0 +1,184 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}
+    Transfer Stock
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7">
+
+        <div class="mb-4">
+
+            <h1 class="mb-1">
+                Transfer Stock
+            </h1>
+
+            <p class="text-muted mb-0">
+                Move inventory between warehouses.
+            </p>
+
+        </div>
+
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger">
+
+                            {{ form.non_field_errors }}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.product.id_for_label }}"
+                            class="form-label"
+                        >
+                            Product
+                        </label>
+
+                        {{ form.product }}
+
+                        {% for error in form.product.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.from_warehouse.id_for_label }}"
+                            class="form-label"
+                        >
+                            From Warehouse
+                        </label>
+
+                        {{ form.from_warehouse }}
+
+                        {% for error in form.from_warehouse.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.to_warehouse.id_for_label }}"
+                            class="form-label"
+                        >
+                            To Warehouse
+                        </label>
+
+                        {{ form.to_warehouse }}
+
+                        {% for error in form.to_warehouse.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="{{ form.quantity.id_for_label }}"
+                            class="form-label"
+                        >
+                            Quantity
+                        </label>
+
+                        {{ form.quantity }}
+
+                        {% for error in form.quantity.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label
+                            for="{{ form.reason.id_for_label }}"
+                            class="form-label"
+                        >
+                            Reason
+                        </label>
+
+                        {{ form.reason }}
+
+                        {% for error in form.reason.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Transfer Stock
+                        </button>
+
+                        <a
+                            href="{% url 'inventory_list' %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

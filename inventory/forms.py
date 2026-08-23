@@ -162,3 +162,87 @@ class StockAdjustmentForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class StockTransferForm(forms.Form):
+
+    product = forms.ModelChoiceField(
+        queryset=Product.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+            }
+        ),
+    )
+
+    from_warehouse = forms.ModelChoiceField(
+        queryset=Warehouse.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+            }
+        ),
+    )
+
+    to_warehouse = forms.ModelChoiceField(
+        queryset=Warehouse.objects.all(),
+        widget=forms.Select(
+            attrs={
+                "class": "form-select",
+            }
+        ),
+    )
+
+    quantity = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(
+            attrs={
+                "class": "form-control",
+                "min": 1,
+            }
+        ),
+    )
+
+    reason = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Reason for transfer",
+            }
+        ),
+    )
+
+    def clean(self):
+
+        cleaned_data = super().clean()
+
+        product = cleaned_data.get("product")
+        from_warehouse = cleaned_data.get("from_warehouse")
+        to_warehouse = cleaned_data.get("to_warehouse")
+
+        if (
+            from_warehouse
+            and to_warehouse
+            and from_warehouse == to_warehouse
+        ):
+            raise forms.ValidationError(
+                "Source and destination warehouses must be different."
+            )
+
+        if product and from_warehouse:
+
+            inventory = Inventory.objects.filter(
+                product=product,
+                warehouse=from_warehouse,
+            ).first()
+
+            if not inventory:
+                raise forms.ValidationError(
+                    "No inventory exists for this product "
+                    "at the source warehouse."
+                )
+
+            cleaned_data["source_inventory"] = inventory
+
+        return cleaned_data

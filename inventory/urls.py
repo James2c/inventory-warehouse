@@ -90,6 +90,12 @@ urlpatterns = [
     ),
 
     path(
+        "inventory/transfer/",
+        views.stock_transfer,
+        name="stock_transfer",
+    ),
+
+    path(
         "warehouses/<int:warehouse_id>/edit/",
         views.warehouse_edit,
         name="warehouse_edit",

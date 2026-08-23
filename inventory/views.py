@@ -9,8 +9,8 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm
-from .models import Category, Inventory, Product, Supplier, Warehouse
+from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm
+from .models import Category, Inventory, Product, Supplier, Warehouse, StockAdjustment
 
 
 
@@ -542,5 +542,88 @@ def low_stock(request):
         "inventory/low_stock.html",
         {
             "inventory": inventory,
+        },
+    )
+
+
+def stock_transfer(request):
+
+    if request.method == "POST":
+
+        form = StockTransferForm(request.POST)
+
+        if form.is_valid():
+
+            product = form.cleaned_data["product"]
+            from_warehouse = form.cleaned_data["from_warehouse"]
+            to_warehouse = form.cleaned_data["to_warehouse"]
+            quantity = form.cleaned_data["quantity"]
+            reason = form.cleaned_data["reason"]
+
+            source_inventory = form.cleaned_data[
+                "source_inventory"
+            ]
+
+            if quantity > source_inventory.quantity:
+
+                form.add_error(
+                    "quantity",
+                    "Transfer quantity cannot exceed "
+                    "available source inventory.",
+                )
+
+            else:
+
+                with transaction.atomic():
+
+                    destination_inventory, created = (
+                        Inventory.objects.get_or_create(
+                            product=product,
+                            warehouse=to_warehouse,
+                            defaults={
+                                "quantity": 0,
+                            },
+                        )
+                    )
+
+                    source_inventory.quantity -= quantity
+
+                    destination_inventory.quantity += quantity
+
+                    source_inventory.save()
+
+                    destination_inventory.save()
+
+                    StockAdjustment.objects.create(
+                        inventory=source_inventory,
+                        adjustment_type="OUT",
+                        quantity=quantity,
+                        reason=(
+                            reason
+                            or f"Transfer to {to_warehouse.name}"
+                        ),
+                    )
+
+                    StockAdjustment.objects.create(
+                        inventory=destination_inventory,
+                        adjustment_type="IN",
+                        quantity=quantity,
+                        reason=(
+                            reason
+                            or f"Transfer from {from_warehouse.name}"
+                        ),
+                    )
+
+                return redirect("inventory_list")
+
+    else:
+
+        form = StockTransferForm()
+
+    return render(
+        request,
+        "inventory/stock_transfer_form.html",
+        {
+            "form": form,
         },
     )
