@@ -42,9 +42,33 @@ urlpatterns = [
     ),
 
     path(
+        "inventory/",
+        views.inventory_list,
+        name="inventory_list",
+    ),
+
+    path(
+        "inventory/add/",
+        views.inventory_create,
+        name="inventory_create",
+    ),
+
+    path(
         "warehouses/add/",
         views.warehouse_create,
         name="warehouse_create",
+    ),
+
+    path(
+        "inventory/<int:inventory_id>/edit/",
+        views.inventory_edit,
+        name="inventory_edit",
+    ),
+
+    path(
+        "inventory/<int:inventory_id>/delete/",
+        views.inventory_delete,
+        name="inventory_delete",
     ),
 
     path(

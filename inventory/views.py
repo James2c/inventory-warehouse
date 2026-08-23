@@ -8,7 +8,7 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm
+from .forms import ProductForm, WarehouseForm, InventoryForm
 from .models import Category, Inventory, Product, Supplier, Warehouse
 
 
@@ -341,5 +341,108 @@ def warehouse_delete(request, warehouse_id):
         {
             "warehouse": warehouse,
             "protected": False,
+        },
+    )
+
+
+def inventory_list(request):
+
+    inventory = Inventory.objects.select_related(
+        "product",
+        "warehouse",
+    ).order_by(
+        "product__name",
+    )
+
+    return render(
+        request,
+        "inventory/inventory_list.html",
+        {
+            "inventory": inventory,
+        },
+    )
+
+
+def inventory_create(request):
+
+    if request.method == "POST":
+
+        form = InventoryForm(request.POST)
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect("inventory_list")
+
+    else:
+
+        form = InventoryForm()
+
+    return render(
+        request,
+        "inventory/inventory_form.html",
+        {
+            "form": form,
+            "title": "Add Inventory",
+        },
+    )
+
+
+def inventory_edit(request, inventory_id):
+
+    inventory = get_object_or_404(
+        Inventory,
+        id=inventory_id,
+    )
+
+    if request.method == "POST":
+
+        form = InventoryForm(
+            request.POST,
+            instance=inventory,
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect("inventory_list")
+
+    else:
+
+        form = InventoryForm(
+            instance=inventory,
+        )
+
+    return render(
+        request,
+        "inventory/inventory_form.html",
+        {
+            "form": form,
+            "title": "Edit Inventory",
+            "inventory": inventory,
+        },
+    )
+
+
+def inventory_delete(request, inventory_id):
+
+    inventory = get_object_or_404(
+        Inventory,
+        id=inventory_id,
+    )
+
+    if request.method == "POST":
+
+        inventory.delete()
+
+        return redirect("inventory_list")
+
+    return render(
+        request,
+        "inventory/inventory_confirm_delete.html",
+        {
+            "inventory": inventory,
         },
     )
