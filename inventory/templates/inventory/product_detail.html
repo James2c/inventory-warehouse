@@ -20,9 +20,21 @@
 
     </div>
 
-    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
-        Back to Products
-    </a>
+    <div class="d-flex gap-2">
+
+        <a href="{% url 'product_edit' product.id %}" class="btn btn-primary">
+            Edit Product
+        </a>
+
+        <a href="{% url 'product_delete' product.id %}" class="btn btn-danger">
+            Delete Product
+        </a>
+
+        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
+            Back to Products
+        </a>
+
+    </div>
 
 </div>
 

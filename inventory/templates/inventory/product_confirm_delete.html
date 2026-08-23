@@ -1,0 +1,103 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}
+Delete Product
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-6">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-danger text-white">
+                <strong>Delete Product</strong>
+            </div>
+
+            <div class="card-body">
+
+                {% if delete_error %}
+
+                <div class="alert alert-danger">
+
+                    <strong>
+                        Product cannot be deleted.
+                    </strong>
+
+                    <div class="mt-2">
+                        This product has inventory records associated
+                        with it and cannot be deleted.
+                    </div>
+
+                </div>
+
+                {% endif %}
+
+                <h4 class="mb-3">
+                    Are you sure?
+                </h4>
+
+                <p>
+                    You are about to delete:
+                </p>
+
+                <div class="alert alert-light border">
+
+                    <strong>
+                        {{ product.sku }}
+                    </strong>
+
+                    <br>
+
+                    {{ product.name }}
+
+                </div>
+
+                <p class="text-muted">
+                    This action cannot be undone.
+                </p>
+
+
+                {% if delete_error %}
+
+                <div class="d-flex justify-content-end">
+
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">
+                        Return to Product
+                    </a>
+
+                </div>
+
+                {% else %}
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn btn-danger">
+                            Delete Product
+                        </button>
+
+                    </div>
+
+                </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

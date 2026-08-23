@@ -78,8 +78,8 @@ class Warehouse(models.Model):
 class Inventory(models.Model):
     product = models.ForeignKey(
         Product,
-        on_delete=models.CASCADE,
-        related_name="inventory"
+        on_delete=models.PROTECT,
+        related_name="inventory",
     )
 
     warehouse = models.ForeignKey(
