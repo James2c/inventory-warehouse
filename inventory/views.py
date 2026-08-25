@@ -689,3 +689,58 @@ def stock_transfer(request):
             "form": form,
         },
     )
+
+
+def stock_activity(request):
+
+    activities = (
+        StockAdjustment.objects
+        .select_related(
+            "inventory__product",
+            "inventory__warehouse",
+        )
+        .order_by("-created_at")
+    )
+
+    products = Product.objects.order_by("name")
+
+    warehouses = Warehouse.objects.order_by("name")
+
+    selected_product = request.GET.get("product", "")
+    selected_warehouse = request.GET.get("warehouse", "")
+    selected_type = request.GET.get("type", "")
+
+    if selected_product:
+        activities = activities.filter(
+            inventory__product_id=selected_product
+        )
+
+    if selected_warehouse:
+        activities = activities.filter(
+            inventory__warehouse_id=selected_warehouse
+        )
+
+    if selected_type:
+        activities = activities.filter(
+            adjustment_type=selected_type
+        )
+
+    paginator = Paginator(activities, 10)
+
+    page_number = request.GET.get("page")
+
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        "inventory/stock_activity.html",
+        {
+            "activities": page_obj,
+            "page_obj": page_obj,
+            "products": products,
+            "warehouses": warehouses,
+            "selected_product": selected_product,
+            "selected_warehouse": selected_warehouse,
+            "selected_type": selected_type,
+        },
+    )

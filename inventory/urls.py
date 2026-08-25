@@ -96,6 +96,12 @@ urlpatterns = [
     ),
 
     path(
+        "adjustments/",
+        views.stock_activity,
+        name="stock_activity",
+    ),
+
+    path(
         "warehouses/<int:warehouse_id>/edit/",
         views.warehouse_edit,
         name="warehouse_edit",
