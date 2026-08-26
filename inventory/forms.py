@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product, Warehouse, Inventory, StockAdjustment
+from .models import Product, Warehouse, Inventory, StockAdjustment, Category
 
 
 class ProductForm(forms.ModelForm):
@@ -246,3 +246,30 @@ class StockTransferForm(forms.Form):
             cleaned_data["source_inventory"] = inventory
 
         return cleaned_data
+
+
+class CategoryForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Category
+
+        fields = [
+            "name",
+            "description",
+        ]
+
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                }
+            ),
+        }

@@ -102,6 +102,36 @@ urlpatterns = [
     ),
 
     path(
+        "categories/",
+        views.category_list,
+        name="category_list",
+    ),
+
+    path(
+        "categories/create/",
+        views.category_create,
+        name="category_create",
+    ),
+
+    path(
+        "categories/<int:category_id>/",
+        views.category_detail,
+        name="category_detail",
+    ),
+
+    path(
+        "categories/<int:category_id>/edit/",
+        views.category_edit,
+        name="category_edit",
+    ),
+
+    path(
+        "categories/<int:category_id>/delete/",
+        views.category_delete,
+        name="category_delete",
+    ),
+
+    path(
         "warehouses/<int:warehouse_id>/edit/",
         views.warehouse_edit,
         name="warehouse_edit",

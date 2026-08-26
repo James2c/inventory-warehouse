@@ -9,7 +9,7 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm
+from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm
 from .models import Category, Inventory, Product, Supplier, Warehouse, StockAdjustment
 
 
@@ -742,5 +742,156 @@ def stock_activity(request):
             "selected_product": selected_product,
             "selected_warehouse": selected_warehouse,
             "selected_type": selected_type,
+        },
+    )
+
+
+
+def category_list(request):
+
+    categories = (
+        Category.objects
+        .annotate(
+            product_count=Count("products")
+        )
+        .order_by("name")
+    )
+
+    return render(
+        request,
+        "inventory/category_list.html",
+        {
+            "categories": categories,
+        },
+    )
+
+
+def category_create(request):
+
+    if request.method == "POST":
+
+        form = CategoryForm(request.POST)
+
+        if form.is_valid():
+
+            category = form.save()
+
+            return redirect(
+                "category_detail",
+                category_id=category.id,
+            )
+
+    else:
+
+        form = CategoryForm()
+
+    return render(
+        request,
+        "inventory/category_form.html",
+        {
+            "form": form,
+            "title": "Add Category",
+            "submit_label": "Create Category",
+        },
+    )
+
+
+def category_detail(request, category_id):
+
+    category = get_object_or_404(
+        Category,
+        id=category_id,
+    )
+
+    products = (
+        Product.objects
+        .filter(category=category)
+        .order_by("name")
+    )
+
+    return render(
+        request,
+        "inventory/category_detail.html",
+        {
+            "category": category,
+            "products": products,
+        },
+    )
+
+
+def category_edit(request, category_id):
+
+    category = get_object_or_404(
+        Category,
+        id=category_id,
+    )
+
+    if request.method == "POST":
+
+        form = CategoryForm(
+            request.POST,
+            instance=category,
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "category_detail",
+                category_id=category.id,
+            )
+
+    else:
+
+        form = CategoryForm(
+            instance=category,
+        )
+
+    return render(
+        request,
+        "inventory/category_form.html",
+        {
+            "form": form,
+            "title": "Edit Category",
+            "submit_label": "Save Changes",
+        },
+    )
+
+
+def category_delete(request, category_id):
+
+    category = get_object_or_404(
+        Category,
+        id=category_id,
+    )
+
+    if request.method == "POST":
+
+        try:
+
+            category.delete()
+
+        except ProtectedError:
+
+            return render(
+                request,
+                "inventory/category_delete.html",
+                {
+                    "category": category,
+                    "error": (
+                        "This category cannot be deleted "
+                        "because products are assigned to it."
+                    ),
+                },
+            )
+
+        return redirect("category_list")
+
+    return render(
+        request,
+        "inventory/category_delete.html",
+        {
+            "category": category,
         },
     )
