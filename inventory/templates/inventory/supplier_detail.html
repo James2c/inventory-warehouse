@@ -1,0 +1,124 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}
+    {{ supplier.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h1 class="mb-1">
+            {{ supplier.name }}
+        </h1>
+
+        <p class="text-muted mb-0">
+            Supplier information and contact details.
+        </p>
+
+    </div>
+
+
+    <div class="d-flex gap-2">
+
+        <a
+            href="{% url 'supplier_list' %}"
+            class="btn btn-outline-secondary"
+        >
+            Back to Suppliers
+        </a>
+
+        <a
+            href="{% url 'supplier_edit' supplier.id %}"
+            class="btn btn-primary"
+        >
+            Edit Supplier
+        </a>
+
+        <a
+            href="{% url 'supplier_delete' supplier.id %}"
+            class="btn btn-outline-danger"
+        >
+            Delete Supplier
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+
+        <h5 class="mb-0">
+            Contact Information
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <p class="text-muted mb-1">
+                    Contact Name
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ supplier.contact_name|default:"—" }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <p class="text-muted mb-1">
+                    Email
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ supplier.email|default:"—" }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <p class="text-muted mb-1">
+                    Phone
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ supplier.phone|default:"—" }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <p class="text-muted mb-1">
+                    Address
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ supplier.address|default:"—" }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product, Warehouse, Inventory, StockAdjustment, Category
+from .models import Product, Warehouse, Inventory, StockAdjustment, Category, Supplier
 
 
 class ProductForm(forms.ModelForm):
@@ -267,6 +267,55 @@ class CategoryForm(forms.ModelForm):
             ),
 
             "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                }
+            ),
+        }
+
+
+class SupplierForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Supplier
+
+        fields = [
+            "name",
+            "contact_name",
+            "email",
+            "phone",
+            "address",
+        ]
+
+        widgets = {
+
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "contact_name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "email": forms.EmailInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "phone": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "address": forms.Textarea(
                 attrs={
                     "class": "form-control",
                     "rows": 4,

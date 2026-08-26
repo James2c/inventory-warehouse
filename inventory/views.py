@@ -9,7 +9,7 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm
+from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm
 from .models import Category, Inventory, Product, Supplier, Warehouse, StockAdjustment
 
 
@@ -893,5 +893,142 @@ def category_delete(request, category_id):
         "inventory/category_delete.html",
         {
             "category": category,
+        },
+    )
+
+
+def supplier_list(request):
+
+    suppliers = Supplier.objects.all()
+
+    return render(
+        request,
+        "inventory/supplier_list.html",
+        {
+            "suppliers": suppliers,
+        },
+    )
+
+
+def supplier_create(request):
+
+    if request.method == "POST":
+
+        form = SupplierForm(request.POST)
+
+        if form.is_valid():
+
+            supplier = form.save()
+
+            return redirect(
+                "supplier_detail",
+                supplier_id=supplier.id,
+            )
+
+    else:
+
+        form = SupplierForm()
+
+    return render(
+        request,
+        "inventory/supplier_form.html",
+        {
+            "form": form,
+            "title": "Add Supplier",
+            "submit_label": "Create Supplier",
+        },
+    )
+
+
+def supplier_detail(request, supplier_id):
+
+    supplier = get_object_or_404(
+        Supplier,
+        id=supplier_id,
+    )
+
+    return render(
+        request,
+        "inventory/supplier_detail.html",
+        {
+            "supplier": supplier,
+        },
+    )
+
+
+def supplier_edit(request, supplier_id):
+
+    supplier = get_object_or_404(
+        Supplier,
+        id=supplier_id,
+    )
+
+    if request.method == "POST":
+
+        form = SupplierForm(
+            request.POST,
+            instance=supplier,
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "supplier_detail",
+                supplier_id=supplier.id,
+            )
+
+    else:
+
+        form = SupplierForm(
+            instance=supplier,
+        )
+
+    return render(
+        request,
+        "inventory/supplier_form.html",
+        {
+            "form": form,
+            "title": "Edit Supplier",
+            "submit_label": "Save Changes",
+        },
+    )
+
+
+def supplier_delete(request, supplier_id):
+
+    supplier = get_object_or_404(
+        Supplier,
+        id=supplier_id,
+    )
+
+    if request.method == "POST":
+
+        try:
+
+            supplier.delete()
+
+        except ProtectedError:
+
+            return render(
+                request,
+                "inventory/supplier_delete.html",
+                {
+                    "supplier": supplier,
+                    "error": (
+                        "This supplier cannot be deleted "
+                        "because it has associated records."
+                    ),
+                },
+            )
+
+        return redirect("supplier_list")
+
+    return render(
+        request,
+        "inventory/supplier_delete.html",
+        {
+            "supplier": supplier,
         },
     )
