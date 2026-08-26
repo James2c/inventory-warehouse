@@ -96,6 +96,12 @@ class PurchaseOrder(models.Model):
         related_name="purchase_orders",
     )
 
+    warehouse = models.ForeignKey(
+        Warehouse,
+        on_delete=models.PROTECT,
+        related_name="purchase_orders",
+    )
+
     order_date = models.DateField()
 
     expected_date = models.DateField(
@@ -120,6 +126,17 @@ class PurchaseOrder(models.Model):
     def __str__(self):
         return self.po_number
 
+    def can_edit(self):
+        return self.status == "draft"
+
+
+    def can_receive(self):
+        return self.status in ["ordered", "partially_received"]
+
+
+    def is_complete(self):
+        return self.status == "received"
+
 
 class PurchaseOrderItem(models.Model):
 
@@ -143,6 +160,10 @@ class PurchaseOrderItem(models.Model):
 
     def quantity_remaining(self):
         return self.quantity_ordered - self.quantity_received
+
+    def receive(self, quantity):
+        self.quantity_received += quantity
+        self.save(update_fields=["quantity_received"])
 
     class Meta:
         constraints = [

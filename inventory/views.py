@@ -9,8 +9,8 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm, PurchaseOrderForm, PurchaseOrderItemForm
-from .models import Category, Inventory, Product, Supplier, Warehouse, StockAdjustment, PurchaseOrder, PurchaseOrderItem
+from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm, PurchaseOrderForm, PurchaseOrderItemForm, PurchaseOrderReceiveForm
+from .models import Category, Inventory, InventoryTransaction, Product, Supplier, Warehouse, StockAdjustment, PurchaseOrder, PurchaseOrderItem
 
 
 
@@ -1055,9 +1055,20 @@ def purchase_order_detail(request, purchase_order_id):
 
     purchase_order = get_object_or_404(
         PurchaseOrder.objects
-        .select_related("supplier")
+        .select_related(
+            "supplier",
+            "warehouse",
+        )
         .prefetch_related("items__product"),
         id=purchase_order_id,
+    )
+
+    receiving_history = InventoryTransaction.objects.filter(
+        transaction_type="IN",
+        reference=purchase_order.po_number,
+    ).select_related(
+        "product",
+        "warehouse",
     )
 
     return render(
@@ -1065,6 +1076,7 @@ def purchase_order_detail(request, purchase_order_id):
         "inventory/purchase_order_detail.html",
         {
             "purchase_order": purchase_order,
+            "receiving_history": receiving_history,
         },
     )
 
@@ -1105,6 +1117,12 @@ def purchase_order_item_create(request, purchase_order_id):
         PurchaseOrder,
         id=purchase_order_id,
     )
+
+    if not purchase_order.can_edit():
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
 
     if request.method == "POST":
 
@@ -1160,6 +1178,12 @@ def purchase_order_item_edit(
         purchase_order=purchase_order,
     )
 
+    if not purchase_order.can_edit():
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
     if request.method == "POST":
 
         form = PurchaseOrderItemForm(
@@ -1214,6 +1238,12 @@ def purchase_order_item_delete(
         purchase_order=purchase_order,
     )
 
+    if not purchase_order.can_edit():
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
     if request.method == "POST":
 
         item.delete()
@@ -1227,6 +1257,114 @@ def purchase_order_item_delete(
         request,
         "inventory/purchase_order_item_delete.html",
         {
+            "purchase_order": purchase_order,
+            "item": item,
+        },
+    )
+
+
+@transaction.atomic
+def purchase_order_item_receive(
+    request,
+    purchase_order_id,
+    item_id,
+):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    item = get_object_or_404(
+        PurchaseOrderItem,
+        id=item_id,
+        purchase_order=purchase_order,
+    )
+
+    if not purchase_order.can_receive():
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
+    if item.quantity_remaining() <= 0:
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
+    if request.method == "POST":
+
+        form = PurchaseOrderReceiveForm(request.POST)
+
+        if form.is_valid():
+
+            quantity = form.cleaned_data["quantity"]
+
+            if quantity > item.quantity_remaining():
+
+                form.add_error(
+                    "quantity",
+                    "Cannot receive more than the remaining quantity.",
+                )
+
+            else:
+
+                item.receive(quantity)
+
+                inventory, created = Inventory.objects.get_or_create(
+                    product=item.product,
+                    warehouse=purchase_order.warehouse,
+                    defaults={
+                        "quantity": 0,
+                    },
+                )
+
+                inventory.quantity += quantity
+                inventory.save(
+                    update_fields=["quantity"]
+                )
+
+                InventoryTransaction.objects.create(
+                    product=item.product,
+                    warehouse=purchase_order.warehouse,
+                    transaction_type="IN",
+                    quantity=quantity,
+                    reference=purchase_order.po_number,
+                    notes="Purchase order receiving",
+                )
+
+                total_remaining = sum(
+                    po_item.quantity_remaining()
+                    for po_item in purchase_order.items.all()
+                )
+
+                if total_remaining == 0:
+
+                    purchase_order.status = "received"
+
+                else:
+
+                    purchase_order.status = "partially_received"
+
+                purchase_order.save(
+                    update_fields=["status"]
+                )
+
+                return redirect(
+                    "purchase_order_detail",
+                    purchase_order_id=purchase_order.id,
+                )
+
+    else:
+
+        form = PurchaseOrderReceiveForm()
+
+    return render(
+        request,
+        "inventory/purchase_order_receive.html",
+        {
+            "form": form,
             "purchase_order": purchase_order,
             "item": item,
         },

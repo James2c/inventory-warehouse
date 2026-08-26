@@ -333,6 +333,7 @@ class PurchaseOrderForm(forms.ModelForm):
         fields = [
             "po_number",
             "supplier",
+            "warehouse",
             "order_date",
             "expected_date",
             "status",
@@ -348,6 +349,12 @@ class PurchaseOrderForm(forms.ModelForm):
             ),
 
             "supplier": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
+            "warehouse": forms.Select(
                 attrs={
                     "class": "form-select",
                 }
@@ -440,3 +447,16 @@ class PurchaseOrderItemForm(forms.ModelForm):
             )
 
         return product
+
+
+class PurchaseOrderReceiveForm(forms.Form):
+
+    quantity = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(
+            attrs={
+                "class": "form-control",
+                "min": 1,
+            }
+        ),
+    )

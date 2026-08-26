@@ -79,6 +79,19 @@
             <div class="col-md-4">
 
                 <p class="text-muted mb-1">
+                    Warehouse
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ purchase_order.warehouse.name }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <p class="text-muted mb-1">
                     Status
                 </p>
 
@@ -142,12 +155,16 @@
             Purchase Order Items
         </h5>
 
-        <a
-            href="{% url 'purchase_order_item_create' purchase_order.id %}"
-            class="btn btn-sm btn-primary"
-        >
-            Add Item
-        </a>
+        {% if purchase_order.can_edit %}
+
+            <a
+                href="{% url 'purchase_order_item_create' purchase_order.id %}"
+                class="btn btn-sm btn-primary"
+            >
+                Add Item
+            </a>
+
+        {% endif %}
 
     </div>
 
@@ -222,19 +239,35 @@
 
                             <td class="text-end">
 
-                                <a
-                                    href="{% url 'purchase_order_item_edit' purchase_order.id item.id %}"
-                                    class="btn btn-sm btn-outline-primary"
-                                >
-                                    Edit
-                                </a>
+                                {% if purchase_order.can_receive and item.quantity_remaining > 0 %}
 
-                                <a
-                                    href="{% url 'purchase_order_item_delete' purchase_order.id item.id %}"
-                                    class="btn btn-sm btn-outline-danger"
-                                >
-                                    Delete
-                                </a>
+                                    <a
+                                        href="{% url 'purchase_order_item_receive' purchase_order.id item.id %}"
+                                        class="btn btn-sm btn-outline-success"
+                                    >
+                                        Receive Stock
+                                    </a>
+
+                                {% endif %}
+
+
+                                {% if purchase_order.can_edit %}
+
+                                    <a
+                                        href="{% url 'purchase_order_item_edit' purchase_order.id item.id %}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        Edit
+                                    </a>
+
+                                    <a
+                                        href="{% url 'purchase_order_item_delete' purchase_order.id item.id %}"
+                                        class="btn btn-sm btn-outline-danger"
+                                    >
+                                        Delete
+                                    </a>
+
+                                {% endif %}
 
                             </td>
 
@@ -249,6 +282,98 @@
                                 class="text-center py-4 text-muted"
                             >
                                 No purchase order items have been added yet.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="mt-4"></div>
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+
+        <h5 class="mb-0">
+            Receiving History
+        </h5>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th class="text-center">
+                            Quantity
+                        </th>
+
+                        <th>
+                            Warehouse
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for transaction in receiving_history %}
+
+                        <tr>
+
+                            <td>
+                                {{ transaction.created_at|date:"M d, Y H:i" }}
+                            </td>
+
+                            <td>
+                                {{ transaction.product.name }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ transaction.quantity }}
+                            </td>
+
+                            <td>
+                                {{ transaction.warehouse.name }}
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="text-center py-4 text-muted"
+                            >
+                                No stock has been received for this purchase order yet.
                             </td>
 
                         </tr>

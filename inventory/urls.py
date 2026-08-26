@@ -210,6 +210,12 @@ urlpatterns = [
     ),
 
     path(
+        "purchase-orders/<int:purchase_order_id>/items/<int:item_id>/receive/",
+        views.purchase_order_item_receive,
+        name="purchase_order_item_receive",
+    ),
+
+    path(
         "purchase-orders/<int:purchase_order_id>/",
         views.purchase_order_detail,
         name="purchase_order_detail",
