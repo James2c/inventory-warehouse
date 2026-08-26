@@ -4,6 +4,8 @@ from .models import (
     Category,
     Supplier,
     Product,
+    PurchaseOrder,
+    PurchaseOrderItem,
     Warehouse,
     Inventory,
     InventoryTransaction,
@@ -142,4 +144,46 @@ class StockAdjustmentAdmin(admin.ModelAdmin):
         "inventory__product__sku",
         "inventory__warehouse__name",
         "reason",
+    )
+
+
+@admin.register(PurchaseOrder)
+class PurchaseOrderAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "po_number",
+        "supplier",
+        "order_date",
+        "expected_date",
+        "status",
+    )
+
+    list_filter = (
+        "status",
+        "supplier",
+    )
+
+    search_fields = (
+        "po_number",
+        "supplier__name",
+    )
+
+
+@admin.register(PurchaseOrderItem)
+class PurchaseOrderItemAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "purchase_order",
+        "product",
+        "quantity_ordered",
+        "quantity_received",
+    )
+
+    list_filter = (
+        "purchase_order",
+    )
+
+    search_fields = (
+        "purchase_order__po_number",
+        "product__name",
     )

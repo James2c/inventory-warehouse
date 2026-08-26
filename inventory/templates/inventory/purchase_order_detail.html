@@ -1,0 +1,268 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}
+    {{ purchase_order.po_number }}
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h1 class="mb-1">
+            {{ purchase_order.po_number }}
+        </h1>
+
+        <p class="text-muted mb-0">
+            Purchase order details.
+        </p>
+
+    </div>
+
+
+    <div class="d-flex gap-2">
+
+        <a
+            href="{% url 'purchase_order_list' %}"
+            class="btn btn-outline-secondary"
+        >
+            Back to Purchase Orders
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header">
+
+        <h5 class="mb-0">
+            Purchase Order Information
+        </h5>
+
+    </div>
+
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+
+                <p class="text-muted mb-1">
+                    PO Number
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ purchase_order.po_number }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <p class="text-muted mb-1">
+                    Supplier
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ purchase_order.supplier.name }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <p class="text-muted mb-1">
+                    Status
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ purchase_order.get_status_display }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <p class="text-muted mb-1">
+                    Order Date
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ purchase_order.order_date }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <p class="text-muted mb-1">
+                    Expected Date
+                </p>
+
+                <p class="fw-semibold mb-0">
+                    {{ purchase_order.expected_date|default:"—" }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-12">
+
+                <p class="text-muted mb-1">
+                    Notes
+                </p>
+
+                <p class="mb-0">
+                    {{ purchase_order.notes|default:"—" }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+        <h5 class="mb-0">
+            Purchase Order Items
+        </h5>
+
+        <a
+            href="{% url 'purchase_order_item_create' purchase_order.id %}"
+            class="btn btn-sm btn-primary"
+        >
+            Add Item
+        </a>
+
+    </div>
+
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th class="text-center">
+                            Quantity Ordered
+                        </th>
+
+                        <th class="text-center">
+                            Quantity Received
+                        </th>
+
+                        <th class="text-center">
+                            Remaining
+                        </th>
+
+                        <th class="text-end">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in purchase_order.items.all %}
+
+                        <tr>
+
+                            <td>
+
+                                <span class="fw-semibold">
+                                    {{ item.product.name }}
+                                </span>
+
+                                <div class="small text-muted">
+                                    SKU: {{ item.product.sku }}
+                                </div>
+
+                            </td>
+
+
+                            <td class="text-center">
+                                {{ item.quantity_ordered }}
+                            </td>
+
+
+                            <td class="text-center">
+                                {{ item.quantity_received }}
+                            </td>
+
+
+                            <td class="text-center">
+                                {{ item.quantity_remaining }}
+                            </td>
+
+                            <td class="text-end">
+
+                                <a
+                                    href="{% url 'purchase_order_item_edit' purchase_order.id item.id %}"
+                                    class="btn btn-sm btn-outline-primary"
+                                >
+                                    Edit
+                                </a>
+
+                                <a
+                                    href="{% url 'purchase_order_item_delete' purchase_order.id item.id %}"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    Delete
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="text-center py-4 text-muted"
+                            >
+                                No purchase order items have been added yet.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

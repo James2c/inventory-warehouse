@@ -178,4 +178,40 @@ urlpatterns = [
         views.warehouse_detail,
         name="warehouse_detail",
     ),
+
+    path(
+        "purchase-orders/",
+        views.purchase_order_list,
+        name="purchase_order_list",
+    ),
+
+    path(
+        "purchase-orders/create/",
+        views.purchase_order_create,
+        name="purchase_order_create",
+    ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/items/add/",
+        views.purchase_order_item_create,
+        name="purchase_order_item_create",
+    ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/items/<int:item_id>/edit/",
+        views.purchase_order_item_edit,
+        name="purchase_order_item_edit",
+    ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/items/<int:item_id>/delete/",
+        views.purchase_order_item_delete,
+        name="purchase_order_item_delete",
+    ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/",
+        views.purchase_order_detail,
+        name="purchase_order_detail",
+    ),
 ]

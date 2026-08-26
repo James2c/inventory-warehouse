@@ -1,0 +1,62 @@
+{% extends "inventory/base.html" %}
+
+{% block title %}
+    Delete Purchase Order Item
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h1 class="mb-1">
+        Delete Purchase Order Item
+    </h1>
+
+    <p class="text-muted mb-0">
+        Confirm removal of this item from {{ purchase_order.po_number }}.
+    </p>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <p>
+            Are you sure you want to remove
+            <strong>{{ item.product.name }}</strong>
+            from
+            <strong>{{ purchase_order.po_number }}</strong>?
+        </p>
+
+        <p class="text-muted">
+            Quantity ordered: {{ item.quantity_ordered }}
+        </p>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="btn btn-danger"
+            >
+                Delete Item
+            </button>
+
+            <a
+                href="{% url 'purchase_order_detail' purchase_order.id %}"
+                class="btn btn-outline-secondary ms-2"
+            >
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

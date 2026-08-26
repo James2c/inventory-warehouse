@@ -9,8 +9,8 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm
-from .models import Category, Inventory, Product, Supplier, Warehouse, StockAdjustment
+from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm, PurchaseOrderForm, PurchaseOrderItemForm
+from .models import Category, Inventory, Product, Supplier, Warehouse, StockAdjustment, PurchaseOrder, PurchaseOrderItem
 
 
 
@@ -1030,5 +1030,204 @@ def supplier_delete(request, supplier_id):
         "inventory/supplier_delete.html",
         {
             "supplier": supplier,
+        },
+    )
+
+
+def purchase_order_list(request):
+
+    purchase_orders = (
+        PurchaseOrder.objects
+        .select_related("supplier")
+        .order_by("-order_date", "-id")
+    )
+
+    return render(
+        request,
+        "inventory/purchase_order_list.html",
+        {
+            "purchase_orders": purchase_orders,
+        },
+    )
+
+
+def purchase_order_detail(request, purchase_order_id):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder.objects
+        .select_related("supplier")
+        .prefetch_related("items__product"),
+        id=purchase_order_id,
+    )
+
+    return render(
+        request,
+        "inventory/purchase_order_detail.html",
+        {
+            "purchase_order": purchase_order,
+        },
+    )
+
+
+def purchase_order_create(request):
+
+    if request.method == "POST":
+
+        form = PurchaseOrderForm(request.POST)
+
+        if form.is_valid():
+
+            purchase_order = form.save()
+
+            return redirect(
+                "purchase_order_detail",
+                purchase_order_id=purchase_order.id,
+            )
+
+    else:
+
+        form = PurchaseOrderForm()
+
+    return render(
+        request,
+        "inventory/purchase_order_form.html",
+        {
+            "form": form,
+            "title": "Create Purchase Order",
+            "submit_label": "Create Purchase Order",
+        },
+    )
+
+
+def purchase_order_item_create(request, purchase_order_id):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    if request.method == "POST":
+
+        form = PurchaseOrderItemForm(
+            request.POST,
+            purchase_order=purchase_order,
+        )
+
+        if form.is_valid():
+
+            item = form.save(commit=False)
+
+            item.purchase_order = purchase_order
+
+            item.save()
+
+            return redirect(
+                "purchase_order_detail",
+                purchase_order_id=purchase_order.id,
+            )
+
+    else:
+
+        form = PurchaseOrderItemForm(
+            purchase_order=purchase_order,
+        )
+
+    return render(
+        request,
+        "inventory/purchase_order_item_form.html",
+        {
+            "form": form,
+            "purchase_order": purchase_order,
+            "submit_label": "Add Item",
+        },
+    )
+
+
+def purchase_order_item_edit(
+    request,
+    purchase_order_id,
+    item_id,
+):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    item = get_object_or_404(
+        PurchaseOrderItem,
+        id=item_id,
+        purchase_order=purchase_order,
+    )
+
+    if request.method == "POST":
+
+        form = PurchaseOrderItemForm(
+            request.POST,
+            instance=item,
+            purchase_order=purchase_order,
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "purchase_order_detail",
+                purchase_order_id=purchase_order.id,
+            )
+
+    else:
+
+        form = PurchaseOrderItemForm(
+            instance=item,
+            purchase_order=purchase_order,
+        )
+
+    return render(
+        request,
+        "inventory/purchase_order_item_form.html",
+        {
+            "form": form,
+            "purchase_order": purchase_order,
+            "item": item,
+            "title": "Edit Purchase Order Item",
+            "submit_label": "Save Changes",
+        },
+    )
+
+
+def purchase_order_item_delete(
+    request,
+    purchase_order_id,
+    item_id,
+):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    item = get_object_or_404(
+        PurchaseOrderItem,
+        id=item_id,
+        purchase_order=purchase_order,
+    )
+
+    if request.method == "POST":
+
+        item.delete()
+
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
+    return render(
+        request,
+        "inventory/purchase_order_item_delete.html",
+        {
+            "purchase_order": purchase_order,
+            "item": item,
         },
     )

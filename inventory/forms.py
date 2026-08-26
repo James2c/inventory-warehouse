@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product, Warehouse, Inventory, StockAdjustment, Category, Supplier
+from .models import Product, Warehouse, Inventory, StockAdjustment, Category, Supplier, PurchaseOrder, PurchaseOrderItem
 
 
 class ProductForm(forms.ModelForm):
@@ -322,3 +322,121 @@ class SupplierForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class PurchaseOrderForm(forms.ModelForm):
+
+    class Meta:
+
+        model = PurchaseOrder
+
+        fields = [
+            "po_number",
+            "supplier",
+            "order_date",
+            "expected_date",
+            "status",
+            "notes",
+        ]
+
+        widgets = {
+
+            "po_number": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "supplier": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
+            "order_date": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "expected_date": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "status": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
+            "notes": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                }
+            ),
+        }
+
+
+class PurchaseOrderItemForm(forms.ModelForm):
+
+    class Meta:
+        model = PurchaseOrderItem
+
+        fields = [
+            "product",
+            "quantity_ordered",
+        ]
+
+        widgets = {
+            "product": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
+            "quantity_ordered": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": 1,
+                }
+            ),
+        }
+
+    def __init__(
+        self,
+        *args,
+        purchase_order=None,
+        **kwargs
+    ):
+
+        super().__init__(*args, **kwargs)
+
+        self.purchase_order = purchase_order
+
+    def clean_product(self):
+
+        product = self.cleaned_data["product"]
+
+        queryset = PurchaseOrderItem.objects.filter(
+            purchase_order=self.purchase_order,
+            product=product,
+        )
+
+        if self.instance.pk:
+            queryset = queryset.exclude(
+                pk=self.instance.pk
+            )
+
+        if queryset.exists():
+
+            raise forms.ValidationError(
+                "This product has already been added "
+                "to this purchase order."
+            )
+
+        return product
