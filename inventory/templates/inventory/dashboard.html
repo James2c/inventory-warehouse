@@ -349,7 +349,7 @@
                         <th>PO Number</th>
                         <th>Supplier</th>
                         <th>Warehouse</th>
-                        <th>Status</th>
+                        <th class="text-center">Status</th>
                         <th class="text-center">Action</th>
 
                     </tr>
@@ -374,7 +374,7 @@
                             {{ purchase_order.warehouse.name }}
                         </td>
 
-                        <td>
+                        <td class="text-center">
 
                             {% if purchase_order.status == "ordered" %}
 

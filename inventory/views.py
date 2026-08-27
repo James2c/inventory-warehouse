@@ -1354,12 +1354,31 @@ def purchase_order_detail(request, purchase_order_id):
         "warehouse",
     )
 
+    total_quantity_ordered = sum(
+        item.quantity_ordered
+        for item in purchase_order.items.all()
+    )
+
+    total_quantity_received = sum(
+        item.quantity_received
+        for item in purchase_order.items.all()
+    )
+
+    total_quantity_remaining = (
+        total_quantity_ordered
+        - total_quantity_received
+    )
+
     return render(
         request,
         "inventory/purchase_order_detail.html",
         {
             "purchase_order": purchase_order,
             "receiving_history": receiving_history,
+
+            "total_quantity_ordered": total_quantity_ordered,
+            "total_quantity_received": total_quantity_received,
+            "total_quantity_remaining": total_quantity_remaining,
         },
     )
 
