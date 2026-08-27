@@ -96,6 +96,12 @@ urlpatterns = [
     ),
 
     path(
+        "stock-transfers/history/",
+        views.stock_transfer_history,
+        name="stock_transfer_history",
+    ),
+
+    path(
         "adjustments/",
         views.stock_activity,
         name="stock_activity",

@@ -145,11 +145,11 @@
 
                         <th>Product</th>
 
-                        <th>Quantity</th>
+                        <th class="text-center">Quantity</th>
 
-                        <th>Reorder Level</th>
+                        <th class="text-center">Reorder Level</th>
 
-                        <th>Status</th>
+                        <th class="text-center">Status</th>
 
                     </tr>
 
@@ -186,17 +186,17 @@
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
                                 {{ item.quantity }}
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
                                 {{ item.product.reorder_level }}
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
 
                                 {% if item.quantity <= item.product.reorder_level %}
 

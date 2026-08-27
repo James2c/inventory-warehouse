@@ -2,6 +2,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Sum, Count
 from django.db.models.deletion import ProtectedError
 from django.db import transaction, models
+import uuid
 
 from django.shortcuts import (
     get_object_or_404,
@@ -148,6 +149,7 @@ def product_list(request):
 
 
 def product_detail(request, product_id):
+
     product = get_object_or_404(
         Product.objects.select_related(
             "category",
@@ -162,12 +164,26 @@ def product_detail(request, product_id):
         "warehouse",
     )
 
+    purchase_order_items = (
+        product.purchase_order_items
+        .select_related(
+            "purchase_order",
+            "purchase_order__supplier",
+            "purchase_order__warehouse",
+        )
+        .order_by(
+            "-purchase_order__order_date",
+            "-purchase_order__id",
+        )
+    )
+
     return render(
         request,
         "inventory/product_detail.html",
         {
             "product": product,
             "inventory": inventory,
+            "purchase_order_items": purchase_order_items,
         },
     )
 
@@ -656,6 +672,10 @@ def stock_transfer(request):
 
                     destination_inventory.save()
 
+                    transfer_reference = (
+                        f"TR-{uuid.uuid4().hex[:8].upper()}"
+                    )
+
                     StockAdjustment.objects.create(
                         inventory=source_inventory,
                         adjustment_type="OUT",
@@ -671,6 +691,30 @@ def stock_transfer(request):
                         adjustment_type="IN",
                         quantity=quantity,
                         reason=(
+                            reason
+                            or f"Transfer from {from_warehouse.name}"
+                        ),
+                    )
+
+                    InventoryTransaction.objects.create(
+                        product=product,
+                        warehouse=from_warehouse,
+                        transaction_type="TRANSFER",
+                        quantity=-quantity,
+                        reference=transfer_reference,
+                        notes=(
+                            reason
+                            or f"Transfer to {to_warehouse.name}"
+                        ),
+                    )
+
+                    InventoryTransaction.objects.create(
+                        product=product,
+                        warehouse=to_warehouse,
+                        transaction_type="TRANSFER",
+                        quantity=quantity,
+                        reference=transfer_reference,
+                        notes=(
                             reason
                             or f"Transfer from {from_warehouse.name}"
                         ),
@@ -1399,5 +1443,52 @@ def purchase_order_item_receive(
             "form": form,
             "purchase_order": purchase_order,
             "item": item,
+        },
+    )
+
+
+def stock_transfer_history(request):
+
+    transfers = (
+        InventoryTransaction.objects
+        .filter(
+            transaction_type="TRANSFER",
+            quantity__lt=0,
+        )
+        .select_related(
+            "product",
+            "warehouse",
+        )
+        .order_by(
+            "-created_at",
+        )
+    )
+
+    for transfer in transfers:
+
+        destination = (
+            InventoryTransaction.objects
+            .filter(
+                transaction_type="TRANSFER",
+                reference=transfer.reference,
+                quantity__gt=0,
+            )
+            .select_related(
+                "warehouse",
+            )
+            .first()
+        )
+
+        transfer.destination_warehouse = (
+            destination.warehouse
+            if destination
+            else None
+        )
+
+    return render(
+        request,
+        "inventory/stock_transfer_history.html",
+        {
+            "transfers": transfers,
         },
     )

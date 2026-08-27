@@ -68,13 +68,13 @@
 
                         <th>Warehouse</th>
 
-                        <th>Quantity</th>
+                        <th class="text-center">Quantity</th>
 
-                        <th>Reorder Level</th>
+                        <th class="text-center">Reorder Level</th>
 
-                        <th>Status</th>
+                        <th class="text-center">Status</th>
 
-                        <th>Actions</th>
+                        <th class="text-center">Actions</th>
 
                     </tr>
 
@@ -123,17 +123,17 @@
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
                                 {{ item.quantity }}
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
                                 {{ item.product.reorder_level }}
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
 
                                 {% if item.quantity <= item.product.reorder_level %}
 
@@ -151,7 +151,7 @@
 
                             </td>
 
-                            <td>
+                            <td class="text-center">
 
                                 <a
                                     href="{% url 'stock_adjustment_create' item.id %}"
