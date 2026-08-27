@@ -198,6 +198,18 @@ urlpatterns = [
     ),
 
     path(
+        "purchase-orders/<int:purchase_order_id>/place/",
+        views.purchase_order_place,
+        name="purchase_order_place",
+    ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/cancel/",
+        views.purchase_order_cancel,
+        name="purchase_order_cancel",
+    ),
+
+    path(
         "purchase-orders/<int:purchase_order_id>/items/add/",
         views.purchase_order_item_create,
         name="purchase_order_item_create",

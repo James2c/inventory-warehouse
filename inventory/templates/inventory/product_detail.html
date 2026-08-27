@@ -258,7 +258,13 @@
 
                         <td class="text-center">
 
-                            {% if item.quantity <= product.reorder_level %}
+                            {% if item.quantity == 0 %}
+
+                                <span class="badge bg-danger">
+                                    Out of Stock
+                                </span>
+
+                            {% elif item.quantity <= product.reorder_level %}
 
                                 <span class="badge bg-warning text-dark">
                                     Low Stock
@@ -267,7 +273,7 @@
                             {% else %}
 
                                 <span class="badge bg-success">
-                                    In Stock
+                                    OK
                                 </span>
 
                             {% endif %}

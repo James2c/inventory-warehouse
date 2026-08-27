@@ -2,6 +2,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Sum, Count
 from django.db.models.deletion import ProtectedError
 from django.db import transaction, models
+from django.contrib import messages
 import uuid
 
 from django.shortcuts import (
@@ -29,7 +30,8 @@ def dashboard(request):
     total_warehouses = Warehouse.objects.count()
 
     low_stock_count = Inventory.objects.filter(
-        quantity__lte=models.F("product__reorder_level")
+        quantity__gt=0,
+        quantity__lte=models.F("product__reorder_level"),
     ).count()
 
     low_stock_items = (
@@ -39,12 +41,31 @@ def dashboard(request):
             "warehouse",
         )
         .filter(
-            quantity__lte=models.F("product__reorder_level")
+            quantity__gt=0,
+            quantity__lte=models.F("product__reorder_level"),
         )
         .order_by(
             "quantity",
         )[:5]
     )
+
+    out_of_stock_items = (
+        Inventory.objects
+        .select_related(
+            "product",
+            "warehouse",
+        )
+        .filter(
+            quantity=0,
+        )
+        .order_by(
+            "product__name",
+        )[:5]
+    )
+
+    out_of_stock_count = Inventory.objects.filter(
+        quantity=0,
+    ).count()
 
     warehouse_inventory = (
         Warehouse.objects
@@ -66,6 +87,39 @@ def dashboard(request):
         )[:10]
     )
 
+    # Purchase Order Snapshot
+
+    ordered_po_count = PurchaseOrder.objects.filter(
+        status="ordered"
+    ).count()
+
+    partially_received_po_count = PurchaseOrder.objects.filter(
+        status="partially_received"
+    ).count()
+
+    awaiting_receipt_count = (
+        ordered_po_count
+        + partially_received_po_count
+    )
+
+    recent_purchase_orders = (
+        PurchaseOrder.objects
+        .select_related(
+            "supplier",
+            "warehouse",
+        )
+        .filter(
+            status__in=[
+                "ordered",
+                "partially_received",
+            ]
+        )
+        .order_by(
+            "-order_date",
+            "-id",
+        )[:5]
+    )
+
     return render(
         request,
         "inventory/dashboard.html",
@@ -76,7 +130,14 @@ def dashboard(request):
             "low_stock_count": low_stock_count,
             "warehouse_inventory": warehouse_inventory,
             "low_stock_items": low_stock_items,
+            "out_of_stock_items": out_of_stock_items,
+            "out_of_stock_count": out_of_stock_count,
             "recent_activity": recent_activity,
+
+            "ordered_po_count": ordered_po_count,
+            "partially_received_po_count": partially_received_po_count,
+            "awaiting_receipt_count": awaiting_receipt_count,
+            "recent_purchase_orders": recent_purchase_orders,
         },
     )
 
@@ -1056,7 +1117,7 @@ def supplier_detail(request, supplier_id):
         "category",
     ).order_by(
         "name",
-    )
+    )[:10]
 
     total_purchase_orders = purchase_orders.count()
 
@@ -1207,6 +1268,23 @@ def purchase_order_list(request):
             status=status
         )
 
+    total_po_count = PurchaseOrder.objects.count()
+
+    draft_po_count = PurchaseOrder.objects.filter(
+        status="draft"
+    ).count()
+
+    open_po_count = PurchaseOrder.objects.filter(
+        status__in=[
+            "ordered",
+            "partially_received",
+        ]
+    ).count()
+
+    received_po_count = PurchaseOrder.objects.filter(
+        status="received"
+    ).count()
+
     suppliers = Supplier.objects.order_by(
         "name"
     )
@@ -1215,6 +1293,24 @@ def purchase_order_list(request):
         active=True
     ).order_by(
         "name"
+    )
+
+    purchase_orders_awaiting_receipt = (
+        PurchaseOrder.objects
+        .select_related(
+            "supplier",
+            "warehouse",
+        )
+        .filter(
+            status__in=[
+                "ordered",
+                "partially_received",
+            ]
+        )
+        .order_by(
+            "-order_date",
+            "-id",
+        )[:10]
     )
 
     return render(
@@ -1228,6 +1324,12 @@ def purchase_order_list(request):
             "selected_supplier": supplier_id,
             "selected_warehouse": warehouse_id,
             "selected_status": status,
+
+            "total_po_count": total_po_count,
+            "draft_po_count": draft_po_count,
+            "open_po_count": open_po_count,
+            "received_po_count": received_po_count,
+            "purchase_orders_awaiting_receipt": purchase_orders_awaiting_receipt,
         },
     )
 
@@ -1441,6 +1543,79 @@ def purchase_order_item_delete(
             "purchase_order": purchase_order,
             "item": item,
         },
+    )
+
+
+def purchase_order_place(request, purchase_order_id):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    if purchase_order.status != "draft":
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
+    if not purchase_order.items.exists():
+
+        messages.error(
+            request,
+            "Cannot place order. Add at least one item first.",
+        )
+
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
+    purchase_order.status = "ordered"
+
+    purchase_order.save(
+        update_fields=["status"]
+    )
+
+    return redirect(
+        "purchase_order_detail",
+        purchase_order_id=purchase_order.id,
+    )
+
+
+def purchase_order_cancel(request, purchase_order_id):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    if purchase_order.status != "draft":
+
+        messages.error(
+            request,
+            "Only draft purchase orders can be cancelled.",
+        )
+
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
+    purchase_order.status = "cancelled"
+
+    purchase_order.save(
+        update_fields=["status"]
+    )
+
+    messages.success(
+        request,
+        f"{purchase_order.po_number} has been cancelled.",
+    )
+
+    return redirect(
+        "purchase_order_detail",
+        purchase_order_id=purchase_order.id,
     )
 
 

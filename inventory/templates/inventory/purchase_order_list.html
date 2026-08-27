@@ -29,6 +29,237 @@
 
 </div>
 
+<!-- Purchase Order KPIs -->
+
+<div class="row g-4 mb-4">
+
+    <!-- Total POs -->
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">
+                    Total POs
+                </h6>
+
+                <h2 class="mb-0">
+                    {{ total_po_count }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Draft POs -->
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">
+                    Draft POs
+                </h6>
+
+                <h2 class="mb-0">
+                    {{ draft_po_count }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Open POs -->
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">
+                    Open POs
+                </h6>
+
+                <h2 class="mb-0">
+                    {{ open_po_count }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Received POs -->
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body text-center">
+
+                <h6 class="text-muted">
+                    Received POs
+                </h6>
+
+                <h2 class="mb-0">
+                    {{ received_po_count }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Purchase Orders Awaiting Receipt -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-header">
+
+        <strong>
+            Purchase Orders Awaiting Receipt ({{ open_po_count }})
+        </strong>
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>PO Number</th>
+                        <th>Supplier</th>
+                        <th>Warehouse</th>
+                        <th>Order Date</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for purchase_order in purchase_orders_awaiting_receipt %}
+
+                    <tr>
+
+                        <td>
+
+                            <a
+                                href="{% url 'purchase_order_detail' purchase_order.id %}"
+                            >
+                                {{ purchase_order.po_number }}
+                            </a>
+
+                        </td>
+
+                        <td>
+                            {{ purchase_order.supplier.name }}
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="{% url 'warehouse_detail' purchase_order.warehouse.id %}"
+                            >
+                                {{ purchase_order.warehouse.name }}
+                            </a>
+
+                        </td>
+
+                        <td>
+                            {{ purchase_order.order_date }}
+                        </td>
+
+                        <td class="text-center">
+
+                            {% if purchase_order.status == "ordered" %}
+
+                                <span class="badge bg-primary">
+                                    Ordered
+                                </span>
+
+                            {% elif purchase_order.status == "partially_received" %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Partially Received
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td class="text-center">
+
+                            <a
+                                href="{% url 'purchase_order_detail' purchase_order.id %}"
+                                class="btn btn-sm btn-outline-primary"
+                            >
+                                View
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="text-center py-4"
+                        >
+                            No purchase orders awaiting receipt.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Purchase Order List Heading -->
+
+<div class="d-flex justify-content-between align-items-center mt-5 mb-3">
+
+    <h5 class="mb-0">
+        Purchase Order List
+    </h5>
+
+</div>
 
 <!-- Filters -->
 
@@ -244,15 +475,6 @@
 
 <div class="card shadow-sm">
 
-    <div class="card-header">
-
-        <h5 class="mb-0">
-            Purchase Order List
-        </h5>
-
-    </div>
-
-
     <div class="card-body p-0">
 
         <div class="table-responsive">
@@ -322,7 +544,7 @@
                             <td>
                                 {{ purchase_order.warehouse.name }}
                             </td>
-                            
+
 
                             <td>
                                 {{ purchase_order.order_date }}

@@ -384,11 +384,48 @@
                             </td>
 
                             <td>
-                                {{ purchase_order.warehouse.name }}
+                                <a
+                                    href="{% url 'warehouse_detail' purchase_order.warehouse.id %}"
+                                    class="text-decoration-none"
+                                >
+                                    {{ purchase_order.warehouse.name }}
+                                </a>
                             </td>
 
                             <td class="text-center">
-                                {{ purchase_order.get_status_display }}
+
+                                {% if purchase_order.status == "draft" %}
+
+                                    <span class="badge bg-secondary">
+                                        Draft
+                                    </span>
+
+                                {% elif purchase_order.status == "ordered" %}
+
+                                    <span class="badge bg-primary">
+                                        Ordered
+                                    </span>
+
+                                {% elif purchase_order.status == "partially_received" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Partially Received
+                                    </span>
+
+                                {% elif purchase_order.status == "received" %}
+
+                                    <span class="badge bg-success">
+                                        Received
+                                    </span>
+
+                                {% elif purchase_order.status == "cancelled" %}
+
+                                    <span class="badge bg-danger">
+                                        Cancelled
+                                    </span>
+
+                                {% endif %}
+
                             </td>
 
                         </tr>

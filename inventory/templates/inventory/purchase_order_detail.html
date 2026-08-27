@@ -20,8 +20,29 @@
 
     </div>
 
+    <div class="d-flex gap-3">
 
-    <div class="d-flex gap-2">
+        {% if purchase_order.status == "draft" %}
+
+            <a
+                href="{% url 'purchase_order_place' purchase_order.id %}"
+                class="btn btn-success"
+            >
+                Place Order
+            </a>
+
+        {% endif %}
+
+        {% if purchase_order.status == "draft" %}
+
+            <a
+                href="{% url 'purchase_order_cancel' purchase_order.id %}"
+                class="btn btn-outline-danger"
+            >
+                Cancel PO
+            </a>
+
+        {% endif %}
 
         <a
             href="{% url 'purchase_order_list' %}"
@@ -30,9 +51,31 @@
             Back to Purchase Orders
         </a>
 
+
     </div>
 
 </div>
+
+{% if messages %}
+
+    {% for message in messages %}
+
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+
+            {{ message }}
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+            ></button>
+
+        </div>
+
+    {% endfor %}
+
+{% endif %}
 
 
 <div class="card shadow-sm mb-4">
@@ -195,7 +238,7 @@
                             Remaining
                         </th>
 
-                        <th class="text-end">
+                        <th class="text-center">
                             Actions
                         </th>
 
@@ -237,7 +280,7 @@
                                 {{ item.quantity_remaining }}
                             </td>
 
-                            <td class="text-end">
+                            <td class="text-center">
 
                                 {% if purchase_order.can_receive and item.quantity_remaining > 0 %}
 
@@ -297,6 +340,7 @@
     </div>
 
 </div>
+
 
 
 <div class="mt-4"></div>
