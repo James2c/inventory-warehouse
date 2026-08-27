@@ -288,6 +288,7 @@ def warehouse_list(request):
 
 
 def warehouse_detail(request, warehouse_id):
+
     warehouse = get_object_or_404(
         Warehouse,
         id=warehouse_id,
@@ -306,7 +307,13 @@ def warehouse_detail(request, warehouse_id):
     low_stock_count = sum(
         1
         for item in inventory
-        if item.quantity <= item.product.reorder_level
+        if 0 < item.quantity <= item.product.reorder_level
+    )
+
+    out_of_stock_count = sum(
+        1
+        for item in inventory
+        if item.quantity == 0
     )
 
     return render(
@@ -318,6 +325,7 @@ def warehouse_detail(request, warehouse_id):
             "product_count": inventory.count(),
             "total_units": total_units,
             "low_stock_count": low_stock_count,
+            "out_of_stock_count": out_of_stock_count,
         },
     )
 
@@ -433,11 +441,57 @@ def inventory_list(request):
         "product__name",
     )
 
+    query = request.GET.get("q", "").strip()
+    warehouse_id = request.GET.get("warehouse", "")
+    status = request.GET.get("status", "")
+
+    if query:
+
+        inventory = inventory.filter(
+            models.Q(product__sku__icontains=query)
+            | models.Q(product__name__icontains=query)
+        )
+
+    if warehouse_id:
+
+        inventory = inventory.filter(
+            warehouse_id=warehouse_id
+        )
+
+    if status == "in_stock":
+
+        inventory = inventory.filter(
+            quantity__gt=models.F("product__reorder_level")
+        )
+
+    elif status == "low_stock":
+
+        inventory = inventory.filter(
+            quantity__gt=0,
+            quantity__lte=models.F("product__reorder_level")
+        )
+
+    elif status == "out_of_stock":
+
+        inventory = inventory.filter(
+            quantity=0
+        )
+
+    warehouses = Warehouse.objects.filter(
+        active=True
+    ).order_by(
+        "name"
+    )
+
     return render(
         request,
         "inventory/inventory_list.html",
         {
             "inventory": inventory,
+            "warehouses": warehouses,
+            "query": query,
+            "selected_warehouse": warehouse_id,
+            "selected_status": status,
         },
     )
 
@@ -1114,8 +1168,53 @@ def purchase_order_list(request):
 
     purchase_orders = (
         PurchaseOrder.objects
-        .select_related("supplier")
-        .order_by("-order_date", "-id")
+        .select_related(
+            "supplier",
+            "warehouse",
+        )
+        .order_by(
+            "-order_date",
+            "-id",
+        )
+    )
+
+    query = request.GET.get("q", "").strip()
+    supplier_id = request.GET.get("supplier", "")
+    warehouse_id = request.GET.get("warehouse", "")
+    status = request.GET.get("status", "")
+
+    if query:
+
+        purchase_orders = purchase_orders.filter(
+            po_number__icontains=query
+        )
+
+    if supplier_id:
+
+        purchase_orders = purchase_orders.filter(
+            supplier_id=supplier_id
+        )
+
+    if warehouse_id:
+
+        purchase_orders = purchase_orders.filter(
+            warehouse_id=warehouse_id
+        )
+
+    if status:
+
+        purchase_orders = purchase_orders.filter(
+            status=status
+        )
+
+    suppliers = Supplier.objects.order_by(
+        "name"
+    )
+
+    warehouses = Warehouse.objects.filter(
+        active=True
+    ).order_by(
+        "name"
     )
 
     return render(
@@ -1123,6 +1222,12 @@ def purchase_order_list(request):
         "inventory/purchase_order_list.html",
         {
             "purchase_orders": purchase_orders,
+            "suppliers": suppliers,
+            "warehouses": warehouses,
+            "query": query,
+            "selected_supplier": supplier_id,
+            "selected_warehouse": warehouse_id,
+            "selected_status": status,
         },
     )
 

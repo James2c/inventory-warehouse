@@ -41,6 +41,153 @@
 </div>
 
 
+<!-- Filters -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <form method="get">
+
+            <div class="row g-3 align-items-end">
+
+                <!-- Search -->
+
+                <div class="col-md-5">
+
+                    <label for="search" class="form-label">
+                        Search
+                    </label>
+
+                    <input
+                        type="text"
+                        id="search"
+                        name="q"
+                        class="form-control"
+                        placeholder="SKU, product name..."
+                        value="{{ query }}"
+                    >
+
+                </div>
+
+
+                <!-- Warehouse -->
+
+                <div class="col-md-3">
+
+                    <label for="warehouse" class="form-label">
+                        Warehouse
+                    </label>
+
+                    <select
+                        id="warehouse"
+                        name="warehouse"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Warehouses
+                        </option>
+
+                        {% for warehouse in warehouses %}
+
+                        <option
+                            value="{{ warehouse.id }}"
+                            {% if selected_warehouse == warehouse.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ warehouse.name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Stock Status -->
+
+                <div class="col-md-3">
+
+                    <label for="status" class="form-label">
+                        Stock Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        <option
+                            value="in_stock"
+                            {% if selected_status == "in_stock" %}
+                                selected
+                            {% endif %}
+                        >
+                            In Stock
+                        </option>
+
+                        <option
+                            value="low_stock"
+                            {% if selected_status == "low_stock" %}
+                                selected
+                            {% endif %}
+                        >
+                            Low Stock
+                        </option>
+
+                        <option
+                            value="out_of_stock"
+                            {% if selected_status == "out_of_stock" %}
+                                selected
+                            {% endif %}
+                        >
+                            Out of Stock
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Filter Button -->
+
+
+                <div class="col-12">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Apply Filters
+                    </button>
+
+                    <a
+                        href="{% url 'inventory_list' %}"
+                        class="btn btn-outline-secondary ms-2"
+                    >
+                        Clear
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
 <div class="card shadow-sm">
 
     <div class="card-header">
@@ -134,21 +281,25 @@
 
 
                             <td class="text-center">
-
-                                {% if item.quantity <= item.product.reorder_level %}
+                                {% if item.quantity == 0 %}
 
                                     <span class="badge bg-danger">
+                                        Out of Stock
+                                    </span>
+
+                                {% elif item.quantity <= item.product.reorder_level %}
+
+                                    <span class="badge bg-warning text-dark">
                                         Low Stock
                                     </span>
 
                                 {% else %}
 
                                     <span class="badge bg-success">
-                                        OK
+                                        In Stock
                                     </span>
 
                                 {% endif %}
-
                             </td>
 
                             <td class="text-center">

@@ -129,22 +129,23 @@ Products
 
                 <!-- Buttons -->
 
-                <div class="col-md-1">
+                <div class="col-12">
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        Filter
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Apply Filters
                     </button>
 
+                    <a
+                        href="{% url 'product_list' %}"
+                        class="btn btn-outline-secondary ms-2"
+                    >
+                        Clear
+                    </a>
+
                 </div>
-
-            </div>
-
-
-            <div class="mt-3">
-
-                <a href="{% url 'product_list' %}" class="btn btn-sm btn-outline-secondary">
-                    Clear Filters
-                </a>
 
             </div>
 

@@ -57,11 +57,11 @@
 
                         <th>Warehouse</th>
 
-                        <th>Quantity</th>
+                        <th class="text-center">Quantity</th>
 
-                        <th>Reorder Level</th>
+                        <th class="text-center">Reorder Level</th>
 
-                        <th>Status</th>
+                        <th class="text-center">Status</th>
 
                     </tr>
 
@@ -103,21 +103,31 @@
                             </td>
 
 
-                            <td class="fw-semibold">
+                            <td class="fw-semibold text-center">
                                 {{ item.quantity }}
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
                                 {{ item.product.reorder_level }}
                             </td>
 
 
-                            <td>
+                            <td class="text-center">
 
-                                <span class="badge bg-danger">
-                                    Low Stock
-                                </span>
+                                {% if item.quantity == 0 %}
+
+                                    <span class="badge bg-danger">
+                                        Out of Stock
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Low Stock
+                                    </span>
+
+                                {% endif %}
 
                             </td>
 

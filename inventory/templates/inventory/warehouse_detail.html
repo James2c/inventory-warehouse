@@ -53,11 +53,11 @@
 
 <div class="row g-4 mb-4">
 
-    <div class="col-md-4">
+    <div class="col-md-3">
 
         <div class="card shadow-sm h-100">
 
-            <div class="card-body">
+            <div class="card-body text-center">
 
                 <p class="text-muted mb-1">
                     Products
@@ -74,11 +74,11 @@
     </div>
 
 
-    <div class="col-md-4">
+    <div class="col-md-3">
 
         <div class="card shadow-sm h-100">
 
-            <div class="card-body">
+            <div class="card-body text-center">
 
                 <p class="text-muted mb-1">
                     Total Units
@@ -95,11 +95,11 @@
     </div>
 
 
-    <div class="col-md-4">
+    <div class="col-md-3">
 
         <div class="card shadow-sm h-100">
 
-            <div class="card-body">
+            <div class="card-body text-center">
 
                 <p class="text-muted mb-1">
                     Low Stock Items
@@ -107,6 +107,26 @@
 
                 <h2 class="mb-0">
                     {{ low_stock_count }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-body text-center">
+
+                <p class="text-muted mb-1">
+                    Out of Stock
+                </p>
+
+                <h2 class="mb-0">
+                    {{ out_of_stock_count }}
                 </h2>
 
             </div>
@@ -198,16 +218,22 @@
 
                             <td class="text-center">
 
-                                {% if item.quantity <= item.product.reorder_level %}
+                                {% if item.quantity == 0 %}
 
                                     <span class="badge bg-danger">
+                                        Out of Stock
+                                    </span>
+
+                                {% elif item.quantity <= item.product.reorder_level %}
+
+                                    <span class="badge bg-warning text-dark">
                                         Low Stock
                                     </span>
 
                                 {% else %}
 
                                     <span class="badge bg-success">
-                                        OK
+                                        In Stock
                                     </span>
 
                                 {% endif %}
