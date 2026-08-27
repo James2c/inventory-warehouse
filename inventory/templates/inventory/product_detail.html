@@ -199,6 +199,7 @@
 </div>
 
 
+
 <!-- Warehouse Inventory -->
 
 <div class="card shadow-sm">
@@ -222,7 +223,8 @@
                     <tr>
                         <th>Warehouse</th>
                         <th>Location</th>
-                        <th>Quantity</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-center">Status</th>
                     </tr>
 
                 </thead>
@@ -234,17 +236,42 @@
                     <tr>
 
                         <td>
-                            {{ item.warehouse.name }}
+                            <a
+                                href="{% url 'warehouse_detail' item.warehouse.id %}"
+                                class="text-decoration-none fw-semibold"
+                            >
+                                {{ item.warehouse.name }}
+                            </a>
                         </td>
 
                         <td>
                             {{ item.warehouse.location }}
                         </td>
 
-                        <td>
+                        <td class="text-center">
+
                             <strong>
                                 {{ item.quantity }}
                             </strong>
+
+                        </td>
+
+                        <td class="text-center">
+
+                            {% if item.quantity <= product.reorder_level %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Low Stock
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-success">
+                                    In Stock
+                                </span>
+
+                            {% endif %}
+
                         </td>
 
                     </tr>
@@ -253,7 +280,7 @@
 
                     <tr>
 
-                        <td colspan="3" class="text-center py-4">
+                        <td colspan="4" class="text-center py-4">
                             No inventory records found.
                         </td>
 

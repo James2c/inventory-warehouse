@@ -947,11 +947,43 @@ def supplier_detail(request, supplier_id):
         id=supplier_id,
     )
 
+    purchase_orders = supplier.purchase_orders.select_related(
+        "warehouse",
+    ).order_by(
+        "-order_date",
+        "-id",
+    )
+
+    products = supplier.products.select_related(
+        "category",
+    ).order_by(
+        "name",
+    )
+
+    total_purchase_orders = purchase_orders.count()
+
+    open_purchase_orders = purchase_orders.filter(
+        status__in=[
+            "draft",
+            "ordered",
+            "partially_received",
+        ]
+    ).count()
+
+    received_purchase_orders = purchase_orders.filter(
+        status="received",
+    ).count()
+
     return render(
         request,
         "inventory/supplier_detail.html",
         {
             "supplier": supplier,
+            "purchase_orders": purchase_orders,
+            "products": products,
+            "total_purchase_orders": total_purchase_orders,
+            "open_purchase_orders": open_purchase_orders,
+            "received_purchase_orders": received_purchase_orders,
         },
     )
 
