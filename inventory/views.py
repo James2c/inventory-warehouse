@@ -1244,6 +1244,26 @@ def purchase_order_list(request):
     warehouse_id = request.GET.get("warehouse", "")
     status = request.GET.get("status", "")
 
+    order_date_from = request.GET.get(
+        "order_date_from",
+        "",
+    )
+
+    order_date_to = request.GET.get(
+        "order_date_to",
+        "",
+    )
+
+    expected_date_from = request.GET.get(
+        "expected_date_from",
+        "",
+    )
+
+    expected_date_to = request.GET.get(
+        "expected_date_to",
+        "",
+    )
+
     if query:
 
         purchase_orders = purchase_orders.filter(
@@ -1266,6 +1286,30 @@ def purchase_order_list(request):
 
         purchase_orders = purchase_orders.filter(
             status=status
+        )
+
+    if order_date_from:
+
+        purchase_orders = purchase_orders.filter(
+            order_date__gte=order_date_from
+        )
+
+    if order_date_to:
+
+        purchase_orders = purchase_orders.filter(
+            order_date__lte=order_date_to
+        )
+
+    if expected_date_from:
+
+        purchase_orders = purchase_orders.filter(
+            expected_date__gte=expected_date_from
+        )
+
+    if expected_date_to:
+
+        purchase_orders = purchase_orders.filter(
+            expected_date__lte=expected_date_to
         )
 
     total_po_count = PurchaseOrder.objects.count()
@@ -1330,6 +1374,10 @@ def purchase_order_list(request):
             "open_po_count": open_po_count,
             "received_po_count": received_po_count,
             "purchase_orders_awaiting_receipt": purchase_orders_awaiting_receipt,
+            "order_date_from": order_date_from,
+            "order_date_to": order_date_to, 
+            "expected_date_from": expected_date_from,
+            "expected_date_to": expected_date_to,
         },
     )
 
