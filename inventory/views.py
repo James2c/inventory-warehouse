@@ -4,6 +4,7 @@ from django.db.models.deletion import ProtectedError
 from django.db import transaction, models
 from django.contrib import messages
 import uuid
+from django.utils import timezone
 
 from django.shortcuts import (
     get_object_or_404,
@@ -1329,6 +1330,14 @@ def purchase_order_list(request):
         status="received"
     ).count()
 
+    overdue_po_count = PurchaseOrder.objects.filter(
+        expected_date__lt=timezone.now().date(),
+        status__in=[
+            "ordered",
+            "partially_received",
+        ]
+    ).count()
+
     suppliers = Supplier.objects.order_by(
         "name"
     )
@@ -1357,6 +1366,25 @@ def purchase_order_list(request):
         )[:10]
     )
 
+    overdue_purchase_orders = (
+        PurchaseOrder.objects
+        .select_related(
+            "supplier",
+            "warehouse",
+        )
+        .filter(
+            expected_date__lt=timezone.now().date(),
+            status__in=[
+                "ordered",
+                "partially_received",
+            ]
+        )
+        .order_by(
+            "expected_date",
+            "-id",
+        )[:10]
+    )
+
     return render(
         request,
         "inventory/purchase_order_list.html",
@@ -1378,6 +1406,8 @@ def purchase_order_list(request):
             "order_date_to": order_date_to, 
             "expected_date_from": expected_date_from,
             "expected_date_to": expected_date_to,
+            "overdue_po_count": overdue_po_count,
+            "overdue_purchase_orders": overdue_purchase_orders,
         },
     )
 
