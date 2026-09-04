@@ -548,6 +548,7 @@
 
                 </div>
 
+
                 <!-- Order Date -->
 
                 <div class="col-md-3">
@@ -628,6 +629,24 @@
                         value="{{ expected_date_to }}"
                     >
 
+                </div>
+
+                <!-- Overdue Checkbox -->
+
+                <div class="col-12 d-flex justify-content-end">
+                    <div class="form-check">
+                        <input
+                            type="checkbox"
+                            name="overdue"
+                            id="overdue"
+                            value="1"
+                            class="form-check-input"
+                            {% if overdue %}checked{% endif %}
+                        >
+                        <label for="overdue" class="form-check-label">
+                            Overdue Only
+                        </label>
+                    </div>
                 </div>
 
 

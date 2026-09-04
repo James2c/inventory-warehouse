@@ -238,4 +238,10 @@ urlpatterns = [
         views.purchase_order_detail,
         name="purchase_order_detail",
     ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/edit/",
+        views.purchase_order_edit,
+        name="purchase_order_edit",
+    ),
 ]

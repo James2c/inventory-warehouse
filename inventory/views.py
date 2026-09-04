@@ -1244,6 +1244,7 @@ def purchase_order_list(request):
     supplier_id = request.GET.get("supplier", "")
     warehouse_id = request.GET.get("warehouse", "")
     status = request.GET.get("status", "")
+    overdue = request.GET.get("overdue", "")
 
     order_date_from = request.GET.get(
         "order_date_from",
@@ -1287,6 +1288,16 @@ def purchase_order_list(request):
 
         purchase_orders = purchase_orders.filter(
             status=status
+        )
+
+    if overdue:
+
+        purchase_orders = purchase_orders.filter(
+            expected_date__lt=timezone.now().date(),
+            status__in=[
+                "ordered",
+                "partially_received",
+            ]
         )
 
     if order_date_from:
@@ -1396,6 +1407,7 @@ def purchase_order_list(request):
             "selected_supplier": supplier_id,
             "selected_warehouse": warehouse_id,
             "selected_status": status,
+            "overdue": overdue,
 
             "total_po_count": total_po_count,
             "draft_po_count": draft_po_count,
@@ -1867,5 +1879,47 @@ def stock_transfer_history(request):
         "inventory/stock_transfer_history.html",
         {
             "transfers": transfers,
+        },
+    )
+
+
+def purchase_order_edit(request, purchase_order_id):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    if not purchase_order.can_edit():
+        return redirect(
+            "purchase_order_detail",
+            purchase_order_id=purchase_order.id,
+        )
+
+    if request.method == "POST":
+        form = PurchaseOrderForm(
+            request.POST,
+            instance=purchase_order,
+        )
+
+        if form.is_valid():
+            form.save()
+
+            return redirect(
+                "purchase_order_detail",
+                purchase_order_id=purchase_order.id,
+            )
+
+    else:
+        form = PurchaseOrderForm(
+            instance=purchase_order,
+        )
+
+    return render(
+        request,
+        "inventory/purchase_order_edit.html",
+        {
+            "form": form,
+            "purchase_order": purchase_order,
         },
     )

@@ -31,15 +31,18 @@
                 Place Order
             </a>
 
-        {% endif %}
-
-        {% if purchase_order.status == "draft" %}
-
             <a
                 href="{% url 'purchase_order_cancel' purchase_order.id %}"
                 class="btn btn-outline-danger"
             >
                 Cancel PO
+            </a>
+
+            <a
+                href="{% url 'purchase_order_edit' purchase_order.id %}"
+                class="btn btn-primary"
+            >
+                Edit PO
             </a>
 
         {% endif %}
