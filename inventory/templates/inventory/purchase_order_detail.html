@@ -242,6 +242,14 @@
                         </th>
 
                         <th class="text-center">
+                            Unit Price
+                        </th>
+
+                        <th class="text-center">
+                            Line Total
+                        </th>
+
+                        <th class="text-center">
                             Actions
                         </th>
 
@@ -281,6 +289,14 @@
 
                             <td class="text-center">
                                 {{ item.quantity_remaining }}
+                            </td>
+
+                            <td class="text-center">
+                                ${{ item.unit_price|floatformat:2 }}
+                            </td>
+
+                            <td class="text-center">
+                                ${{ item.line_total|floatformat:2 }}
                             </td>
 
                             <td class="text-center">
@@ -360,8 +376,17 @@
                             </strong>
                         </td>
 
+                        <td class="text-center">
+                            —
+                        </td>
+
+                        <td class="text-center">
+                            <strong>
+                                ${{ subtotal|floatformat:2 }}
+                            </strong>
+                        </td>
+
                         <td>
-                            
                         </td>
 
                     </tr>
@@ -376,7 +401,39 @@
 
 </div>
 
+<div class="row justify-content-end mt-4">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
 
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <strong>${{ subtotal|floatformat:2 }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Received Value</span>
+                    <strong>${{ received_value|floatformat:2 }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Outstanding Value</span>
+                    <strong>${{ outstanding_value|floatformat:2 }}</strong>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Total</span>
+                    <strong class="fs-5">
+                        ${{ subtotal|floatformat:2 }}
+                    </strong>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="mt-4"></div>
 

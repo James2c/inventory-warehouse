@@ -331,22 +331,14 @@ class PurchaseOrderForm(forms.ModelForm):
         model = PurchaseOrder
 
         fields = [
-            "po_number",
             "supplier",
             "warehouse",
             "order_date",
             "expected_date",
-            "status",
             "notes",
         ]
 
         widgets = {
-
-            "po_number": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                }
-            ),
 
             "supplier": forms.Select(
                 attrs={
@@ -371,12 +363,6 @@ class PurchaseOrderForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "type": "date",
-                }
-            ),
-
-            "status": forms.Select(
-                attrs={
-                    "class": "form-select",
                 }
             ),
 

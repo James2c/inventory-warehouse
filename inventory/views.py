@@ -5,6 +5,7 @@ from django.db import transaction, models
 from django.contrib import messages
 import uuid
 from django.utils import timezone
+from decimal import Decimal
 
 from django.shortcuts import (
     get_object_or_404,
@@ -13,7 +14,7 @@ from django.shortcuts import (
 )
 
 from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm, PurchaseOrderForm, PurchaseOrderItemForm, PurchaseOrderReceiveForm
-from .models import Category, Inventory, InventoryTransaction, Product, Supplier, Warehouse, StockAdjustment, PurchaseOrder, PurchaseOrderItem
+from .models import Category, Inventory, InventoryTransaction, Product, Supplier, Warehouse, StockAdjustment, PurchaseOrder, PurchaseOrderItem, PurchaseOrderNumberSequence
 
 
 
@@ -1459,6 +1460,23 @@ def purchase_order_detail(request, purchase_order_id):
         - total_quantity_received
     )
 
+    items = purchase_order.items.all()
+
+    subtotal = sum(
+        (item.line_total() for item in items),
+        Decimal("0.00"),
+    )
+
+    received_value = sum(
+        (
+            item.quantity_received * item.unit_price
+            for item in items
+        ),
+        Decimal("0.00"),
+    )
+
+    outstanding_value = subtotal - received_value
+
     return render(
         request,
         "inventory/purchase_order_detail.html",
@@ -1469,19 +1487,36 @@ def purchase_order_detail(request, purchase_order_id):
             "total_quantity_ordered": total_quantity_ordered,
             "total_quantity_received": total_quantity_received,
             "total_quantity_remaining": total_quantity_remaining,
+
+            "items": items,
+            "subtotal": subtotal,
+            "received_value": received_value,
+            "outstanding_value": outstanding_value,
         },
     )
 
 
 def purchase_order_create(request):
-
     if request.method == "POST":
-
         form = PurchaseOrderForm(request.POST)
 
         if form.is_valid():
+            with transaction.atomic():
+                sequence = (
+                    PurchaseOrderNumberSequence.objects
+                    .select_for_update()
+                    .first()
+                )
 
-            purchase_order = form.save()
+                po_number = f"PO-{sequence.next_number:04d}"
+
+                sequence.next_number += 1
+                sequence.save(update_fields=["next_number"])
+
+                purchase_order = form.save(commit=False)
+                purchase_order.po_number = po_number
+                purchase_order.status = "draft"
+                purchase_order.save()
 
             return redirect(
                 "purchase_order_detail",
@@ -1489,7 +1524,6 @@ def purchase_order_create(request):
             )
 
     else:
-
         form = PurchaseOrderForm()
 
     return render(
@@ -1528,6 +1562,7 @@ def purchase_order_item_create(request, purchase_order_id):
             item = form.save(commit=False)
 
             item.purchase_order = purchase_order
+            item.unit_price = item.product.unit_price
 
             item.save()
 
@@ -1586,7 +1621,11 @@ def purchase_order_item_edit(
 
         if form.is_valid():
 
-            form.save()
+            item = form.save(commit=False)
+
+            item.unit_price = item.product.unit_price
+
+            item.save()
 
             return redirect(
                 "purchase_order_detail",

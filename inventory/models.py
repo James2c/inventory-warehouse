@@ -73,7 +73,14 @@ class Warehouse(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
+class PurchaseOrderNumberSequence(models.Model):
+    next_number = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"Next PO Number: {self.next_number}"
+     
 
 class PurchaseOrder(models.Model):
 
@@ -158,8 +165,16 @@ class PurchaseOrderItem(models.Model):
         default=0,
     )
 
+    unit_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+
     def quantity_remaining(self):
         return self.quantity_ordered - self.quantity_received
+
+    def line_total(self):
+        return self.quantity_ordered * self.unit_price
 
     def receive(self, quantity):
         self.quantity_received += quantity

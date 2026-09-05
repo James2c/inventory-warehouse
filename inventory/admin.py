@@ -6,6 +6,7 @@ from .models import (
     Product,
     PurchaseOrder,
     PurchaseOrderItem,
+    PurchaseOrderNumberSequence,
     Warehouse,
     Inventory,
     InventoryTransaction,
@@ -187,3 +188,8 @@ class PurchaseOrderItemAdmin(admin.ModelAdmin):
         "purchase_order__po_number",
         "product__name",
     )
+
+
+@admin.register(PurchaseOrderNumberSequence)
+class PurchaseOrderNumberSequenceAdmin(admin.ModelAdmin):
+    list_display = ("next_number",)
