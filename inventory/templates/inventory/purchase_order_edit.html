@@ -89,6 +89,21 @@
                     {% endif %}
                 </div>
 
+                <!-- Shipping Cost -->
+                <div class="col-md-6">
+                    <label for="{{ form.shipping_cost.id_for_label }}" class="form-label">
+                        Shipping Cost
+                    </label>
+
+                    {{ form.shipping_cost }}
+
+                    {% if form.shipping_cost.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.shipping_cost.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
                 <!-- Notes -->
                 <div class="col-12">
                     <label for="{{ form.notes.id_for_label }}" class="form-label">

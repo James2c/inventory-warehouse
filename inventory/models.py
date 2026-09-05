@@ -116,6 +116,12 @@ class PurchaseOrder(models.Model):
         blank=True,
     )
 
+    shipping_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
+
     status = models.CharField(
         max_length=30,
         choices=STATUS_CHOICES,

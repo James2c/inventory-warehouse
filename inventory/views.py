@@ -1477,6 +1477,9 @@ def purchase_order_detail(request, purchase_order_id):
 
     outstanding_value = subtotal - received_value
 
+    shipping_cost = purchase_order.shipping_cost
+    grand_total = subtotal + shipping_cost
+
     return render(
         request,
         "inventory/purchase_order_detail.html",
@@ -1492,6 +1495,9 @@ def purchase_order_detail(request, purchase_order_id):
             "subtotal": subtotal,
             "received_value": received_value,
             "outstanding_value": outstanding_value,
+
+            "shipping_cost": shipping_cost,
+            "grand_total": grand_total,
         },
     )
 

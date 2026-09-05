@@ -335,6 +335,7 @@ class PurchaseOrderForm(forms.ModelForm):
             "warehouse",
             "order_date",
             "expected_date",
+            "shipping_cost",
             "notes",
         ]
 
@@ -363,6 +364,14 @@ class PurchaseOrderForm(forms.ModelForm):
                 attrs={
                     "class": "form-control",
                     "type": "date",
+                }
+            ),
+
+            "shipping_cost": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "min": 0,
+                    "step": "0.01",
                 }
             ),
 
@@ -446,26 +455,3 @@ class PurchaseOrderReceiveForm(forms.Form):
             }
         ),
     )
-
-
-class PurchaseOrderForm(forms.ModelForm):
-    class Meta:
-        model = PurchaseOrder
-        fields = [
-            "supplier",
-            "warehouse",
-            "order_date",
-            "expected_date",
-            "notes",
-        ]
-        widgets = {
-            "order_date": forms.DateInput(
-                attrs={"type": "date"}
-            ),
-            "expected_date": forms.DateInput(
-                attrs={"type": "date"}
-            ),
-            "notes": forms.Textarea(
-                attrs={"rows": 3}
-            ),
-        }

@@ -401,6 +401,9 @@
 
 </div>
 
+
+<!-- Financial Summary -->
+
 <div class="row justify-content-end mt-4">
     <div class="col-md-5 col-lg-4">
         <div class="card shadow-sm">
@@ -408,25 +411,44 @@
 
                 <div class="d-flex justify-content-between mb-2">
                     <span>Subtotal</span>
-                    <strong>${{ subtotal|floatformat:2 }}</strong>
+                    <strong>
+                        ${{ subtotal|floatformat:2 }}
+                    </strong>
                 </div>
 
                 <div class="d-flex justify-content-between mb-2">
-                    <span>Received Value</span>
-                    <strong>${{ received_value|floatformat:2 }}</strong>
-                </div>
-
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Outstanding Value</span>
-                    <strong>${{ outstanding_value|floatformat:2 }}</strong>
+                    <span>Shipping</span>
+                    <strong>
+                        {% if shipping_cost %}
+                            ${{ shipping_cost|floatformat:2 }}
+                        {% else %}
+                            $0.00
+                        {% endif %}
+                    </strong>
                 </div>
 
                 <hr>
 
-                <div class="d-flex justify-content-between">
-                    <span class="fw-bold">Total</span>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold">
+                        Total
+                    </span>
                     <strong class="fs-5">
-                        ${{ subtotal|floatformat:2 }}
+                        ${{ grand_total|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mt-3 mb-2">
+                    <span>Received Value</span>
+                    <strong>
+                        ${{ received_value|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <span>Outstanding Value</span>
+                    <strong>
+                        ${{ outstanding_value|floatformat:2 }}
                     </strong>
                 </div>
 
@@ -434,6 +456,7 @@
         </div>
     </div>
 </div>
+
 
 <div class="mt-4"></div>
 
