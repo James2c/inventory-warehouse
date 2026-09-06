@@ -1,3 +1,4 @@
+import os
 from django import forms
 
 from .models import (
@@ -474,6 +475,7 @@ class PurchaseOrderAttachmentForm(forms.ModelForm):
 
         fields = [
             "file",
+            "attachment_type",
             "description",
         ]
 
@@ -484,10 +486,52 @@ class PurchaseOrderAttachmentForm(forms.ModelForm):
                 }
             ),
 
+            "attachment_type": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
             "description": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "e.g. Supplier Quote",
+                    "placeholder": "e.g. Original supplier quote",
                 }
             ),
         }
+
+    def clean_file(self):
+
+        file = self.cleaned_data.get("file")
+
+        if not file:
+            return file
+
+        allowed_extensions = [
+            ".pdf",
+            ".doc",
+            ".docx",
+            ".xls",
+            ".xlsx",
+            ".csv",
+            ".jpg",
+            ".jpeg",
+            ".png",
+        ]
+
+        extension = os.path.splitext(file.name)[1].lower()
+
+        if extension not in allowed_extensions:
+            raise forms.ValidationError(
+                "Unsupported file type. "
+                "Allowed types: PDF, DOC, DOCX, XLS, XLSX, CSV, JPG, JPEG, PNG."
+            )
+
+        max_size = 10 * 1024 * 1024
+
+        if file.size > max_size:
+            raise forms.ValidationError(
+                "File size cannot exceed 10 MB."
+            )
+
+        return file

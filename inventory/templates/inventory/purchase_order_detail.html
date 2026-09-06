@@ -222,7 +222,8 @@
                         <thead>
                             <tr>
                                 <th>File</th>
-                                <th>Description</th>
+                                <th>Type</th>
+                                <th style="width: 250px;">Description</th>
                                 <th>Uploaded</th>
                                 <th class="text-center">Actions</th>
                             </tr>
@@ -245,6 +246,17 @@
                                 </td>
 
                                 <td>
+                                    {{ attachment.get_attachment_type_display }}
+                                </td>
+
+                                <td
+                                    style="
+                                        max-width: 250px;
+                                        white-space: nowrap;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                    "
+                                >
                                     {{ attachment.description|default:"—" }}
                                 </td>
 

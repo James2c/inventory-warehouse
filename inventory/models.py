@@ -200,6 +200,14 @@ class PurchaseOrderItem(models.Model):
 
 class PurchaseOrderAttachment(models.Model):
 
+    ATTACHMENT_TYPE_CHOICES = [
+        ("supplier_quote", "Supplier Quote"),
+        ("order_confirmation", "Order Confirmation"),
+        ("invoice", "Invoice"),
+        ("packing_list", "Packing List"),
+        ("other", "Other"),
+    ]
+
     purchase_order = models.ForeignKey(
         PurchaseOrder,
         on_delete=models.CASCADE,
@@ -208,6 +216,12 @@ class PurchaseOrderAttachment(models.Model):
 
     file = models.FileField(
         upload_to="purchase_order_attachments/",
+    )
+
+    attachment_type = models.CharField(
+        max_length=30,
+        choices=ATTACHMENT_TYPE_CHOICES,
+        default="other",
     )
 
     description = models.CharField(

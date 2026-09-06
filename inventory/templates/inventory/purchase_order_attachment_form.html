@@ -53,6 +53,26 @@
 
             </div>
 
+            <!-- Attachment Type -->
+            <div class="mb-3">
+
+                <label
+                    for="{{ form.attachment_type.id_for_label }}"
+                    class="form-label"
+                >
+                    Attachment Type
+                </label>
+
+                {{ form.attachment_type }}
+
+                {% if form.attachment_type.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.attachment_type.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
             <!-- Description -->
             <div class="mb-3">
 
