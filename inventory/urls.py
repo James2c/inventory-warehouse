@@ -244,4 +244,16 @@ urlpatterns = [
         views.purchase_order_edit,
         name="purchase_order_edit",
     ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/attachments/upload/",
+        views.purchase_order_attachment_upload,
+        name="purchase_order_attachment_upload",
+    ),
+
+    path(
+        "purchase-orders/<int:purchase_order_id>/attachments/<int:attachment_id>/delete/",
+        views.purchase_order_attachment_delete,
+        name="purchase_order_attachment_delete",
+    ),
 ]

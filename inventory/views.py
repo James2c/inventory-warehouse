@@ -13,8 +13,8 @@ from django.shortcuts import (
     render,
 )
 
-from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm, PurchaseOrderForm, PurchaseOrderItemForm, PurchaseOrderReceiveForm
-from .models import Category, Inventory, InventoryTransaction, Product, Supplier, Warehouse, StockAdjustment, PurchaseOrder, PurchaseOrderItem, PurchaseOrderNumberSequence
+from .forms import ProductForm, WarehouseForm, InventoryForm, StockAdjustmentForm, StockTransferForm, CategoryForm, SupplierForm, PurchaseOrderForm, PurchaseOrderItemForm, PurchaseOrderReceiveForm, PurchaseOrderAttachmentForm
+from .models import Category, Inventory, InventoryTransaction, Product, Supplier, Warehouse, StockAdjustment, PurchaseOrder, PurchaseOrderItem, PurchaseOrderNumberSequence, PurchaseOrderAttachment
 
 
 
@@ -1967,4 +1967,73 @@ def purchase_order_edit(request, purchase_order_id):
             "form": form,
             "purchase_order": purchase_order,
         },
+    )
+
+
+def purchase_order_attachment_upload(request, purchase_order_id):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    if request.method == "POST":
+
+        form = PurchaseOrderAttachmentForm(
+            request.POST,
+            request.FILES,
+        )
+
+        if form.is_valid():
+
+            attachment = form.save(commit=False)
+
+            attachment.purchase_order = purchase_order
+
+            attachment.save()
+
+            return redirect(
+                "purchase_order_detail",
+                purchase_order_id=purchase_order.id,
+            )
+
+    else:
+
+        form = PurchaseOrderAttachmentForm()
+
+    return render(
+        request,
+        "inventory/purchase_order_attachment_form.html",
+        {
+            "form": form,
+            "purchase_order": purchase_order,
+        },
+    )
+
+
+def purchase_order_attachment_delete(
+    request,
+    purchase_order_id,
+    attachment_id,
+):
+
+    purchase_order = get_object_or_404(
+        PurchaseOrder,
+        id=purchase_order_id,
+    )
+
+    attachment = get_object_or_404(
+        PurchaseOrderAttachment,
+        id=attachment_id,
+        purchase_order=purchase_order,
+    )
+
+    if request.method == "POST":
+
+        attachment.file.delete(save=False)
+        attachment.delete()
+
+    return redirect(
+        "purchase_order_detail",
+        purchase_order_id=purchase_order.id,
     )

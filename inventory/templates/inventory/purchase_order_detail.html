@@ -193,7 +193,111 @@
 </div>
 
 
-<div class="card shadow-sm">
+<!-- Attachments -->
+<div class="card shadow-sm mt-4">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+        <strong>Attachments</strong>
+
+        <a
+            href="{% url 'purchase_order_attachment_upload' purchase_order.id %}"
+            class="btn btn-outline-primary btn-sm"
+        >
+            Add Attachment
+        </a>
+
+    </div>
+
+    <div class="card-body">
+
+        {% for attachment in purchase_order.attachments.all %}
+
+            {% if forloop.first %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-sm align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Description</th>
+                                <th>Uploaded</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+            {% endif %}
+
+                            <tr>
+
+                                <td>
+                                    <a
+                                        href="{{ attachment.file.url }}"
+                                        target="_blank"
+                                        rel="noopener"
+                                    >
+                                        {{ attachment.file.name|cut:"purchase_order_attachments/" }}
+                                    </a>
+                                </td>
+
+                                <td>
+                                    {{ attachment.description|default:"—" }}
+                                </td>
+
+                                <td>
+                                    {{ attachment.uploaded_at|date:"M j, Y" }}
+                                </td>
+
+                                <td class="text-center">
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'purchase_order_attachment_delete' purchase_order.id attachment.id %}"
+                                        class="d-inline"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+            {% if forloop.last %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% endif %}
+
+        {% empty %}
+
+            <p class="text-muted mb-0">
+                No attachments have been added to this purchase order.
+            </p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm mt-4">
 
     <div class="card-header d-flex justify-content-between align-items-center">
 

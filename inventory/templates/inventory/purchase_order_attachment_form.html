@@ -1,0 +1,100 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+
+<div class="d-flex align-items-center gap-2 mb-4">
+
+    <a
+        href="{% url 'purchase_order_detail' purchase_order.id %}"
+        class="btn btn-outline-secondary"
+    >
+        Back to Purchase Order
+    </a>
+
+</div>
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+        <strong>
+            Add Attachment to {{ purchase_order.po_number }}
+        </strong>
+    </div>
+
+    <div class="card-body">
+
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- File -->
+            <div class="mb-3">
+
+                <label
+                    for="{{ form.file.id_for_label }}"
+                    class="form-label"
+                >
+                    File
+                </label>
+
+                {{ form.file }}
+
+                {% if form.file.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.file.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+
+                <label
+                    for="{{ form.description.id_for_label }}"
+                    class="form-label"
+                >
+                    Description
+                </label>
+
+                {{ form.description }}
+
+                {% if form.description.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.description.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Upload Attachment
+                </button>
+
+                <a
+                    href="{% url 'purchase_order_detail' purchase_order.id %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

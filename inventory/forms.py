@@ -1,6 +1,16 @@
 from django import forms
 
-from .models import Product, Warehouse, Inventory, StockAdjustment, Category, Supplier, PurchaseOrder, PurchaseOrderItem
+from .models import (
+    Product, 
+    Warehouse, 
+    Inventory, 
+    StockAdjustment, 
+    Category, 
+    Supplier, 
+    PurchaseOrder, 
+    PurchaseOrderItem, 
+    PurchaseOrderAttachment,
+)
 
 
 class ProductForm(forms.ModelForm):
@@ -455,3 +465,29 @@ class PurchaseOrderReceiveForm(forms.Form):
             }
         ),
     )
+
+
+class PurchaseOrderAttachmentForm(forms.ModelForm):
+
+    class Meta:
+        model = PurchaseOrderAttachment
+
+        fields = [
+            "file",
+            "description",
+        ]
+
+        widgets = {
+            "file": forms.ClearableFileInput(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "description": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "e.g. Supplier Quote",
+                }
+            ),
+        }
